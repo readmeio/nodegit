@@ -24,9 +24,6 @@ module.exports = function install() {
       args.push("--debug");
     }
   }
-  else {
-    args.push("--fallback-to-build");
-  }
 
   return new Promise(function(resolve, reject) {
     const gypPath = path.join(__dirname, "..", "node_modules", "node-gyp", "bin", "node-gyp.js");
