@@ -54,9 +54,10 @@ jobs:
         # Node 16 changed the logic it uses to select it's UID which means to make node run as root and not 1001, we need to chwon the current directory. More Details:
         # https://stackoverflow.com/questions/70298238/getting-eaccess-when-running-npm-8-as-root
         run: |
-          chown root.root -R .
-          npm set unsafe-perm true
-          node utils/retry npm install
+          npm install
+          # chown root:root -R .
+          # npm set unsafe-perm true
+          # node utils/retry npm install
 
       - name: Test
         run: |
