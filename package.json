@@ -74,7 +74,7 @@
     "generateJson": "node generate/scripts/generateJson",
     "generateMissingTests": "node generate/scripts/generateMissingTests",
     "generateNativeCode": "node generate/scripts/generateNativeCode",
-    "install": "node lifecycleScripts/preinstall && node lifecycleScripts/install",
+    "install": "node lifecycleScripts/preinstall && node generate && prebuildify --strip --napi -t 20.11.1",
     "installDebug": "BUILD_DEBUG=true npm install",
     "lint": "jshint lib test/tests test/utils lifecycleScripts",
     "mergecov": "lcov-result-merger 'test/**/*.info' 'test/coverage/merged.lcov' && ./lcov-1.10/bin/genhtml test/coverage/merged.lcov --output-directory test/coverage/report",
