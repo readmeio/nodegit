@@ -1,8 +1,6 @@
 var buildFlags = require("../utils/buildFlags");
-var spawn = require("child_process").spawn;
-var path = require("path");
 
-module.exports = function install() {
+module.exports = async function install() {
   console.log("[nodegit] Running install script");
 
   var args = ["install"];
@@ -21,11 +19,7 @@ module.exports = function install() {
     args.push("--fallback-to-build");
   }
 
-  return new Promise(function (resolve, reject) {
-    resolve();
-  }).then(function () {
-    console.info("[nodegit] Completed installation successfully.");
-  });
+  return;
 };
 
 // Called on the command line
