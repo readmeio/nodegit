@@ -54,7 +54,8 @@ jobs:
           npm_config_clang: 1
           GYP_DEFINES: use_obsolete_asm=true
         run: |
-          npm install -g prebuildify
+          npm install -g prebuildify node-gyp
+          npm run generate
           prebuildify --napi --strip -t $(node --version | tr -d 'v')
           npm install
 
