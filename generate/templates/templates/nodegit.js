@@ -1,12 +1,13 @@
 var _ = require("lodash");
 var util = require("util");
+var path = require("path");
 var worker;
 
 try {
   worker = require("worker_threads");
 } catch (e) {}
 
-var rawApi = require("node-gyp-build")(__dirname);
+var rawApi = require("node-gyp-build")(path.join(__dirname, ".."));
 
 var promisify = fn => fn && util.promisify(fn); // jshint ignore:line
 
