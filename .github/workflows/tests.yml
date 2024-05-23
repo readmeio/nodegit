@@ -8,6 +8,7 @@ on:
   pull_request:
 
 jobs:
+  # TODO: run tests on mac
   linux-test:
     name: "test on linux"
     env:
@@ -52,14 +53,15 @@ jobs:
   # TODO: limit this job to main and v... tags?
   build:
     needs: [linux-test]
-    name: "Test and build"
+    name: build
     strategy:
       matrix:
         node: [20]
         os:
-          - name: darwin
-            architecture: x86-64
-            host: macos-10.15
+          # TODO: mac build
+          #- name: darwin
+          #  architecture: x86-64
+          #  host: macos-10.15
 
           - name: linux
             architecture: x86-64
@@ -75,6 +77,8 @@ jobs:
           check-latest: true
       - name: Install
         run: |
+          sudo apt-get update
+          sudo apt-get install -y software-properties-common git build-essential clang libssl-dev libkrb5-dev libc++-dev wget python3
           npm install
 
       - name: Prebuildify
