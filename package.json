@@ -62,11 +62,6 @@
     "mocha": "^5.2.0",
     "walk": "^2.3.9"
   },
-  "binary": {
-    "module_name": "nodegit",
-    "module_path": "./build/Release/",
-    "host": "https://axonodegit.s3.amazonaws.com/nodegit/nodegit/"
-  },
   "scripts": {
     "cov": "npm run cppcov && npm run filtercov && npm run mergecov",
     "coveralls": "cat ./test/coverage/merged.lcov | coveralls",
@@ -75,7 +70,7 @@
     "generateJson": "node generate/scripts/generateJson",
     "generateMissingTests": "node generate/scripts/generateMissingTests",
     "generateNativeCode": "node generate/scripts/generateNativeCode",
-    "preinstall": "node lifecycleScripts/preinstall",
+    "generate": "node lifecycleScripts/preinstall",
     "install": "node-gyp-build",
     "installDebug": "BUILD_DEBUG=true npm install",
     "lint": "jshint lib test/tests test/utils lifecycleScripts",
