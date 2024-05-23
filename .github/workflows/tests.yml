@@ -20,6 +20,10 @@ jobs:
     runs-on: ubuntu-20.04
     container: ubuntu:20.04
     steps:
+      - name: prerequisites
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y software-properties-common git build-essential clang libssl-dev libkrb5-dev libc++-dev wget python3
       - uses: actions/checkout@v4
         with:
           submodules: true
@@ -30,8 +34,6 @@ jobs:
       - name: Test
         run: |
           set -xe
-          sudo apt-get update
-          sudo apt-get install -y software-properties-common git build-essential clang libssl-dev libkrb5-dev libc++-dev wget python3
           mkdir ~/.ssh_tests
           chmod 700 ~/.ssh_tests
           printf "%b" "Host *\n\tStrictHostKeyChecking no\n" > ~/.ssh_tests/config
