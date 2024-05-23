@@ -16,7 +16,7 @@ jobs:
       matrix:
         node: [20]
     runs-on: ubuntu-latest
-    container: ubuntu:24.04
+    container: ubuntu:20.04
     steps:
       - name: Install Dependencies for Ubuntu
         run: apt-get update && apt-get install -y software-properties-common git build-essential clang libssl-dev libkrb5-dev libc++-dev wget python3
@@ -57,8 +57,7 @@ jobs:
         # https://stackoverflow.com/questions/70298238/getting-eaccess-when-running-npm-8-as-root
         run: |
           npm install -g prebuildify
-          # npm install
-          node utils/retry npm install
+          npm install
 
       - name: Test
         run: |
