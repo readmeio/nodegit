@@ -54,10 +54,7 @@ jobs:
           npm_config_clang: 1
           GYP_DEFINES: use_obsolete_asm=true
         run: |
-          npm install -g prebuildify node-gyp
-          npm install --ignore-scripts
-          npm run generate
-          prebuildify --napi --strip -t $(node --version | tr -d 'v')
+          npm generate
           npm install
 
       - name: Test
@@ -66,3 +63,8 @@ jobs:
           eval `ssh-agent -s`
           ssh-add ~/.ssh_tests/id_rsa
           node utils/retry npm test
+
+      - name: Prebuildify
+        run: |
+          prebuildify --napi --strip -t $(node --version | tr -d 'v')
+          # TODO: save the output, then gather it up and publish a release
