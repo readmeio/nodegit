@@ -22,6 +22,7 @@ jobs:
         run: apt-get update && apt-get install -y software-properties-common git build-essential clang libssl-dev libkrb5-dev libc++-dev wget python3
         env:
           ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+          DEBIAN_FRONTEND: "noninteractive"
 
       - name: Setup Environment
         run: |
