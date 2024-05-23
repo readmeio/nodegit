@@ -10,22 +10,26 @@ on:
 name: Testing
 
 jobs:
-  linux-tests:
-    name: "Linux Tests"
-    strategy:
-      matrix:
-        node: [20]
-    runs-on: ubuntu-latest
-    container: ubuntu:20.04
+  linux-test:
+    name: "test on linux"
+    env:
+      CC: clang
+      CXX: clang++
+      npm_config_clang: 1
+      GYP_DEFINES: use_obsolete_asm=true
+    runs-on: ubuntu-20.04
     steps:
-      - name: Install Dependencies for Ubuntu
-        run: apt-get update && apt-get install -y software-properties-common git build-essential clang libssl-dev libkrb5-dev libc++-dev wget python3
-        env:
-          ACTIONS_ALLOW_UNSECURE_COMMANDS: true
-          DEBIAN_FRONTEND: "noninteractive"
-
-      - name: Setup Environment
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          check-latest: true
+      - name: Test
         run: |
+          apt-get update
+          apt-get install -y software-properties-common git build-essential clang libssl-dev libkrb5-dev libc++-dev wget python3
           mkdir ~/.ssh_tests
           chmod 700 ~/.ssh_tests
           printf "%b" "Host *\n\tStrictHostKeyChecking no\n" > ~/.ssh_tests/config
@@ -34,34 +38,40 @@ jobs:
           chmod 600 ~/.ssh_tests/id_rsa*
           git config --global user.name "John Doe"
           git config --global user.email johndoe@example.com
-
-      - uses: actions/checkout@v4
-        with:
-          submodules: true
-
-      - name: Use Node.js
-        uses: actions/setup-node@v4
-        env:
-          ACTIONS_ALLOW_UNSECURE_COMMANDS: true
-        with:
-          node-version: ${{ matrix.node }}
-          check-latest: true
-
-      - name: Install
-        env:
-          CC: clang
-          CXX: clang++
-          npm_config_clang: 1
-          GYP_DEFINES: use_obsolete_asm=true
-        run: |
-          npm install
-
-      - name: Test
-        run: |
           set -e
           eval `ssh-agent -s`
           ssh-add ~/.ssh_tests/id_rsa
-          node utils/retry npm test
+          npm test
+
+# TODO: limit this job to main and v... tags?
+jobs:
+  build:
+    needs: [linux-test]
+    name: "Test and build"
+    runs-on: ${{ matrix.os.host }}
+    strategy:
+      matrix:
+        node: [20]
+        os:
+          - name: darwin
+            architecture: x86-64
+            host: macos-10.15
+
+          - name: linux
+            architecture: x86-64
+            host: ubuntu-20.04
+    runs-on: ${{ matrix.os.host }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          check-latest: true
+      - name: Install
+        run: |
+          npm install
 
       - name: Prebuildify
         env:
@@ -71,5 +81,11 @@ jobs:
           npm_config_clang: 1
           GYP_DEFINES: use_obsolete_asm=true
         run: |
+          npm install -g prebuildify
           prebuildify --napi --strip -t $(node --version | tr -d 'v')
-          # TODO: save the output, then gather it up and publish a release
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: prebuilds
+          path: prebuilds
+          retention-days: 14
