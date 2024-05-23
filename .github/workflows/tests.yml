@@ -22,8 +22,8 @@ jobs:
     steps:
       - name: prerequisites
         run: |
-          sudo apt-get update
-          sudo apt-get install -y software-properties-common git build-essential clang libssl-dev libkrb5-dev libc++-dev wget python3
+          apt-get update
+          apt-get install -y software-properties-common git build-essential clang libssl-dev libkrb5-dev libc++-dev wget python3
       - uses: actions/checkout@v4
         with:
           submodules: true
