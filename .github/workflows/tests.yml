@@ -55,10 +55,8 @@ jobs:
         # https://stackoverflow.com/questions/70298238/getting-eaccess-when-running-npm-8-as-root
         run: |
           npm install -g prebuildify
-          npm install
-          # chown root:root -R .
-          # npm set unsafe-perm true
-          # node utils/retry npm install
+          # npm install
+          node utils/retry npm install
 
       - name: Test
         run: |
