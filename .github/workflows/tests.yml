@@ -18,6 +18,7 @@ jobs:
       npm_config_clang: 1
       GYP_DEFINES: use_obsolete_asm=true
     runs-on: ubuntu-20.04
+    container: ubuntu:20.04
     steps:
       - uses: actions/checkout@v4
         with:
