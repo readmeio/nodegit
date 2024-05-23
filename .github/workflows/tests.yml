@@ -28,8 +28,8 @@ jobs:
           check-latest: true
       - name: Test
         run: |
-          apt-get update
-          apt-get install -y software-properties-common git build-essential clang libssl-dev libkrb5-dev libc++-dev wget python3
+          sudo apt-get update
+          sudo apt-get install -y software-properties-common git build-essential clang libssl-dev libkrb5-dev libc++-dev wget python3
           mkdir ~/.ssh_tests
           chmod 700 ~/.ssh_tests
           printf "%b" "Host *\n\tStrictHostKeyChecking no\n" > ~/.ssh_tests/config
@@ -38,9 +38,12 @@ jobs:
           chmod 600 "$HOME/.ssh_tests/id_rsa*"
           git config --global user.name "John Doe"
           git config --global user.email johndoe@example.com
+
           set -e
           eval "$(ssh-agent -s)"
           ssh-add ~/.ssh_tests/id_rsa
+
+          npm install
           npm test
 
   # TODO: limit this job to main and v... tags?
