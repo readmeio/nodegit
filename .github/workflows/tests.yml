@@ -16,10 +16,10 @@ jobs:
       matrix:
         node: [20]
     runs-on: ubuntu-latest
-    container: ubuntu:24.04
+    container: ubuntu:20.04
     steps:
       - name: Install Dependencies for Ubuntu
-        run: apt-get update && apt-get install -y software-properties-common git build-essential clang libssl-dev libkrb5-dev libc++-dev wget python3 llvm-18-linker-tools
+        run: apt-get update && apt-get install -y software-properties-common git build-essential clang libssl-dev libkrb5-dev libc++-dev wget python3
         env:
           ACTIONS_ALLOW_UNSECURE_COMMANDS: true
           DEBIAN_FRONTEND: "noninteractive"
