@@ -54,7 +54,6 @@ jobs:
           npm_config_clang: 1
           GYP_DEFINES: use_obsolete_asm=true
         run: |
-          npm run generate
           npm install
 
       - name: Test
@@ -65,6 +64,12 @@ jobs:
           node utils/retry npm test
 
       - name: Prebuildify
+        env:
+          # TODO: verify that we need all these
+          CC: clang
+          CXX: clang++
+          npm_config_clang: 1
+          GYP_DEFINES: use_obsolete_asm=true
         run: |
           prebuildify --napi --strip -t $(node --version | tr -d 'v')
           # TODO: save the output, then gather it up and publish a release
