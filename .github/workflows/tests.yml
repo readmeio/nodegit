@@ -57,7 +57,7 @@ jobs:
       CXX: clang++
       npm_config_clang: 1
       GYP_DEFINES: use_obsolete_asm=true
-    runs-on: macos-14
+    runs-on: macos-13
     steps:
       - uses: actions/checkout@v4
         with:
@@ -101,6 +101,12 @@ jobs:
           - name: linux
             architecture: x86-64
             host: ubuntu-20.04
+    env:
+      # TODO: verify that we need all these
+      CC: clang
+      CXX: clang++
+      npm_config_clang: 1
+      GYP_DEFINES: use_obsolete_asm=true
     runs-on: ${{ matrix.os.host }}
     steps:
       - uses: actions/checkout@v4
@@ -112,21 +118,17 @@ jobs:
           check-latest: true
       - name: Install
         run: |
-          sudo apt-get update
-          sudo apt-get install -y software-properties-common git build-essential clang libssl-dev libkrb5-dev libc++-dev wget python3
+          [[ $(uname -o) == *Linux ]] && \
+            sudo apt-get update && \
+            sudo apt-get install -y software-properties-common git build-essential clang libssl-dev libkrb5-dev libc++-dev wget python3
           npm install
 
       - name: Prebuildify
-        env:
-          # TODO: verify that we need all these
-          CC: clang
-          CXX: clang++
-          npm_config_clang: 1
-          GYP_DEFINES: use_obsolete_asm=true
         run: |
           npm install -g prebuildify
           prebuildify --napi --strip -t "$(node --version | tr -d 'v')"
 
+      # TODO: combine the artifacts into a package and upload the package
       - uses: actions/upload-artifact@v3
         with:
           name: prebuilds
