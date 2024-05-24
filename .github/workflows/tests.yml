@@ -93,10 +93,9 @@ jobs:
       matrix:
         node: [20]
         os:
-          # TODO: mac build
-          #- name: darwin
-          #  architecture: x86-64
-          #  host: macos-10.15
+          - name: darwin
+            architecture: x86-64
+            host: macos-10.15
 
           - name: linux
             architecture: x86-64
