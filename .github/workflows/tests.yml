@@ -149,6 +149,7 @@ jobs:
         with:
           node-version: 20
           check-latest: true
+          registry-url: "https://registry.npmjs.org"
       - name: download built libraries
         id: download
         uses: actions/download-artifact@v4
