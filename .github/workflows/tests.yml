@@ -129,7 +129,7 @@ jobs:
       # TODO: move this to the test jobs? why not prebuildify after the tests
       # pass and upload from there. Seems like we're doign work twice for no
       # reason
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: prebuild-${{ runner.os }}-${{ runner.arch }}
           path: prebuilds
