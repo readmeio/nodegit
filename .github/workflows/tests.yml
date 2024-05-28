@@ -155,7 +155,12 @@ jobs:
         with:
           path: prebuilds
       - name: copy libs
-        run: mkdir prebuilds && mv ${{ steps.download.outputs.download-path }}/*/* ./prebuilds && find node/prebuilds
+        run: |
+          set -x
+          mkdir prebuilds
+          find ${{ steps.download.outputs.download-path }}
+          mv ${{ steps.download.outputs.download-path }}/* ./prebuilds
+          find ./prebuilds
       - name: npm install
         run: npm ci
       - name: publish
