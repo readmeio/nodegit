@@ -158,7 +158,7 @@ jobs:
         run: |
           set -x
           find ${{ steps.download.outputs.download-path }}
-          mv ${{ steps.download.outputs.download-path }}/* ./prebuilds
+          mv ${{ steps.download.outputs.download-path }}/*/* ./prebuilds
           find ./prebuilds
       - name: npm install
         run: npm ci
