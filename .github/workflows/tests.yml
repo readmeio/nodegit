@@ -87,14 +87,14 @@ jobs:
 
   # TODO: limit this job to main and v... tags?
   build:
-    needs: [linux-test]
+    needs: [linux-test, mac-test]
     name: build
     strategy:
       matrix:
         node: [20]
         os:
           - name: darwin
-            architecture: x86-64
+            architecture: arm64
             host: macos-13
 
           - name: linux
@@ -127,9 +127,31 @@ jobs:
           npm install -g prebuildify
           prebuildify --napi --strip -t "$(node --version | tr -d 'v')"
 
-      # TODO: combine the artifacts into a package and upload the package
+      # TODO: combine the artifacts into a package and upload the package to npm
       - uses: actions/upload-artifact@v3
         with:
-          name: prebuilds
+          name: prebuild-${{ runner.os }}-${{ runner.arch }}
           path: prebuilds
           retention-days: 14
+
+  publish:
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: download built libraries
+        id: download
+        uses: actions/download-artifact@v4
+        with:
+          path: prebuilds
+      - name: copy libs
+        run: mkdir node/prebuilds && mv ${{ steps.download.outputs.download-path }}/*/* node/prebuilds && find node/prebuilds
+      - name: npm install
+        run: npm ci
+      - name: publish
+        run: npm publish --access public
+        working-directory: node
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
