@@ -157,7 +157,6 @@ jobs:
       - name: copy libs
         run: |
           set -x
-          mkdir prebuilds
           find ${{ steps.download.outputs.download-path }}
           mv ${{ steps.download.outputs.download-path }}/* ./prebuilds
           find ./prebuilds
