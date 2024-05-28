@@ -120,6 +120,10 @@ jobs:
           check-latest: true
       - name: Prebuildify
         run: |
+          [[ $(uname -o) == *Linux ]] && \
+            sudo apt-get update && \
+            sudo apt-get install -y software-properties-common git build-essential clang libssl-dev libkrb5-dev libc++-dev wget python3
+          npm ci
           npx prebuildify --napi --strip -t "$(node --version | tr -d 'v')"
 
       # TODO: move this to the test jobs? why not prebuildify after the tests
