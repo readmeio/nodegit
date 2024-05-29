@@ -164,6 +164,7 @@ jobs:
       - name: npm install
         run: npm ci
       - name: publish
-        run: npm publish --provenance --access public
+        run: |
+          cat .npmrc && echo "token: ${NODE_AUTH_TOKEN:0:10}" && npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
