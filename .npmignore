@@ -6,9 +6,12 @@
 /test/
 
 # we never want npm installs to build from source. Exclude these 10k+ files from the package.
-/vendor/
 /include/
 /src/
+/vendor/
+
+# we do need the libgit2.gyp file though, so node-gyp can run
+!/vendor/libgit2.gyp
 
 .astylerc
 .editorconfig
