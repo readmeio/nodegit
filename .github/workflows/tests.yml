@@ -46,6 +46,7 @@ jobs:
           eval "$(ssh-agent -s)"
           ssh-add ~/.ssh_tests/id_rsa
 
+          npm run generate
           npm install
           npm test
 
@@ -81,5 +82,6 @@ jobs:
           eval "$(ssh-agent -s)"
           ssh-add ~/.ssh_tests/id_rsa
 
+          npm run generate
           npm install
           npm test
