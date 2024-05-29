@@ -150,6 +150,7 @@ jobs:
           node-version: 20
           check-latest: true
           registry-url: "https://registry.npmjs.org"
+          scope: "readme"
       - name: download built libraries
         id: download
         uses: actions/download-artifact@v4
@@ -165,6 +166,6 @@ jobs:
         run: npm ci
       - name: publish
         run: |
-          (cat ~/.npmrc || true) && echo "token: ${NODE_AUTH_TOKEN:0:10}" && npm publish --provenance --access public
+          (cat "$NPM_CONFIG_USERCONFIG" || true) && echo "token: ${NODE_AUTH_TOKEN:0:10}" && npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
