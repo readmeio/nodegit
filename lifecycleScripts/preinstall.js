@@ -4,7 +4,7 @@ var local = path.join.bind(path, __dirname);
 var exec = require(local("../utils/execPromise"));
 var buildFlags = require(local("../utils/buildFlags"));
 
-module.exports = async function prepareForBuild() {
+module.exports = function prepareForBuild() {
   if (buildFlags.isGitRepo) {
     var submodules = require(local("submodules"));
     var generate = require(local("../generate"));
