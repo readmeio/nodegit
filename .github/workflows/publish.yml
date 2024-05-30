@@ -15,7 +15,7 @@ jobs:
         os:
           - name: darwin
             architecture: arm64
-            host: macos-13
+            host: macos-14
 
           - name: linux
             architecture: x86-64
