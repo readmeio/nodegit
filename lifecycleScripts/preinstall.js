@@ -1,7 +1,6 @@
 var path = require("path");
 var local = path.join.bind(path, __dirname);
 
-var exec = require(local("../utils/execPromise"));
 var buildFlags = require(local("../utils/buildFlags"));
 
 module.exports = function prepareForBuild() {
