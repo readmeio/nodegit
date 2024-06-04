@@ -44,7 +44,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: prebuild-${{ runner.os }}-${{ runner.arch }}
-          path: prebuilds
+          path: ./prebuilds
           retention-days: 14
 
   cross-compile:
@@ -70,10 +70,11 @@ jobs:
           docker cp "nodegit-linux-musl-arm64:/app/prebuilds" .
       # list what we've got
       - run: find prebuilds
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: prebuild-linux-arm64
           path: ./prebuilds
+          retention-days: 14
 
   # https://docs.npmjs.com/generating-provenance-statements#publishing-packages-with-provenance-via-github-actions
   publish:
