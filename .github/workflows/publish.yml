@@ -62,13 +62,15 @@ jobs:
       - run: find prebuilds
       - uses: actions/upload-artifact@v3
         with:
-          name: prebuild-${{ linux }}-${{ arm64 }}
+          name: prebuild-linux-arm64
           path: ./prebuilds
 
   # https://docs.npmjs.com/generating-provenance-statements#publishing-packages-with-provenance-via-github-actions
   publish:
     runs-on: ubuntu-latest
-    needs: [build]
+    #TODO: make sure to re-add build in here too, commented out currently to speed up iteration
+    # needs: [build, cross-compile]
+    needs: [cross-compile]
     permissions:
       id-token: write
     steps:
