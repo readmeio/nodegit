@@ -40,7 +40,7 @@ jobs:
   #           sudo apt-get update && \
   #           sudo apt-get install -y software-properties-common git build-essential clang libssl-dev libkrb5-dev libc++-dev wget python3
   #         npm ci
-  #         npx prebuildify --napi --strip -t "$(node --version | tr -d 'v')"
+  #         npx prebuildify --napi --strip --tag-libc -t "$(node --version | tr -d 'v')"
   #     - uses: actions/upload-artifact@v4
   #       with:
   #         name: prebuild-${{ runner.os }}-${{ runner.arch }}
@@ -53,11 +53,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-qemu-action@v3
-      - name: build linux arm
+      - name: build linux glibc arm
         run: |
-          docker build --platform=linux/arm64 --tag nodegit-linux-arm64 -f scripts/Dockerfile.ubuntu .
-          docker create --platform=linux/arm64 --name nodegit-linux-arm64 nodegit-linux-arm64
-          docker cp "nodegit-linux-arm64:/app/prebuilds" .
+          docker build --platform=linux/arm64 --tag nodegit-linux-glibc-arm64 -f scripts/Dockerfile.debian .
+          docker create --platform=linux/arm64 --name nodegit-linux-glibc-arm64 nodegit-linux-glibc-arm64
+          docker cp "nodegit-linux-glibc-arm64:/app/prebuilds" .
+      - name: build linux musl x64
+        run: |
+          docker build --platform=linux/amd64 --tag nodegit-linux-musl-amd64 -f scripts/Dockerfile.alpine .
+          docker create --platform=linux/amd64 --name nodegit-linux-musl-amd64 nodegit-linux-musl-amd64
+          docker cp "nodegit-linux-musl-amd64:/app/prebuilds" .
+      - name: build linux musl arm
+        run: |
+          docker build --platform=linux/arm64 --tag nodegit-linux-musl-arm64 -f scripts/Dockerfile.alpine .
+          docker create --platform=linux/arm64 --name nodegit-linux-musl-arm64 nodegit-linux-musl-arm64
+          docker cp "nodegit-linux-musl-arm64:/app/prebuilds" .
       # list what we've got
       - run: find prebuilds
       - uses: actions/upload-artifact@v3
