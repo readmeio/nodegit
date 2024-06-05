@@ -68,8 +68,8 @@ jobs:
           docker build --platform=linux/arm64 --tag nodegit-linux-musl-arm64 -f scripts/Dockerfile.alpine .
           docker create --platform=linux/arm64 --name nodegit-linux-musl-arm64 nodegit-linux-musl-arm64
           docker cp "nodegit-linux-musl-arm64:/app/prebuilds" .
-      # list what we've got
-      - run: find prebuilds
+      - name: "list the generated files"
+        run: find prebuilds
       - uses: actions/upload-artifact@v4
         with:
           name: prebuild-linux-arm64
@@ -100,13 +100,19 @@ jobs:
       - name: copy libs
         run: |
           set -x
+          mkdir -p prebuilds/linux-arm64
+          mkdir -p prebuilds/linux-x64
+          mkdir -p prebuilds/darwin-arm64
           find ${{ steps.download.outputs.download-path }}
-          mv ${{ steps.download.outputs.download-path }}/*/* ./prebuilds
+          mv ${{ steps.download.outputs.download-path}}prebuild-Linux-X64/linux-x64/* ./prebuilds/linux-x64/
+          mv ${{ steps.download.outputs.download-path}}prebuild-linux-arm64/linux-arm64/* ./prebuilds/linux-arm64/
+          mv ${{ steps.download.outputs.download-path}}prebuild-linux-arm64/linux-x64/* ./prebuilds/linux-x64/
+          mv ${{ steps.download.outputs.download-path}}prebuild-macOS-ARM64/darwin-arm64/* ./prebuilds/darwin-arm64/
           find ./prebuilds
       - name: npm install
         run: npm ci
       - name: publish
         run: |
-          (cat "$NPM_CONFIG_USERCONFIG" || true) && echo "token: ${NODE_AUTH_TOKEN:0:10}" && npm publish --provenance --access public
+          (cat "$NPM_CONFIG_USERCONFIG" || true) && npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
