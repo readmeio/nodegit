@@ -104,10 +104,10 @@ jobs:
           mkdir -p prebuilds/linux-x64
           mkdir -p prebuilds/darwin-arm64
           find ${{ steps.download.outputs.download-path }}
-          mv ${{ steps.download.outputs.download-path}}prebuild-Linux-X64/linux-x64/* ./prebuilds/linux-x64/
-          mv ${{ steps.download.outputs.download-path}}prebuild-linux-arm64/linux-arm64/* ./prebuilds/linux-arm64/
-          mv ${{ steps.download.outputs.download-path}}prebuild-linux-arm64/linux-x64/* ./prebuilds/linux-x64/
-          mv ${{ steps.download.outputs.download-path}}prebuild-macOS-ARM64/darwin-arm64/* ./prebuilds/darwin-arm64/
+          mv ${{ steps.download.outputs.download-path}}/prebuild-Linux-X64/linux-x64/* ./prebuilds/linux-x64/
+          mv ${{ steps.download.outputs.download-path}}/prebuild-linux-arm64/linux-arm64/* ./prebuilds/linux-arm64/
+          mv ${{ steps.download.outputs.download-path}}/prebuild-linux-arm64/linux-x64/* ./prebuilds/linux-x64/
+          mv ${{ steps.download.outputs.download-path}}/prebuild-macOS-ARM64/darwin-arm64/* ./prebuilds/darwin-arm64/
           find ./prebuilds
       - name: npm install
         run: npm ci
