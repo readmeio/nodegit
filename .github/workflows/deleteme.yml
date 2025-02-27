@@ -1,0 +1,79 @@
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    # TODO: should we run the tests, or can we assume that a v* tag ought to
+    # get published?
+    name: build
+    strategy:
+      matrix:
+        node: [20, 22]
+        os:
+          # macos-14 is arm64 (m1)
+          - name: darwin
+            host: macos-14
+
+          # macos-13 is x86
+          - name: mac-x64
+            host: macos-13
+
+          # ubuntu-20.04 is x86. Still no arm linux runners yet
+          # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners/about-github-hosted-runners#standard-github-hosted-runners-for-public-repositories
+          - name: linux
+            host: ubuntu-20.04
+
+          - name: linux-x64
+            host: ubnutu-22.04-arm
+    env:
+      CC: clang
+      CXX: clang++
+      npm_config_clang: 1
+      GYP_DEFINES: use_obsolete_asm=true
+    runs-on: ${{ matrix.os.host }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          check-latest: true
+      - name: Prebuildify
+        run: |
+          [[ $(uname -o) == *Linux ]] && \
+            sudo apt-get update && \
+            sudo apt-get install -y software-properties-common git build-essential clang libssl-dev libkrb5-dev libc++-dev wget python3
+          npm ci
+          npx prebuildify --napi --strip --tag-libc -t "$(node --version | tr -d 'v')"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: prebuild-${{ runner.os }}-${{ runner.arch }}
+          path: ./prebuilds
+          retention-days: 14
+
+  cross-compile:
+    name: "cross compile linux/arm"
+    runs-on: ubuntu-22.04-arm
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-qemu-action@v3
+      # todo: move this to an x64 build box
+      # - name: build linux musl x64
+      #   run: |
+      #     docker build --platform=linux/amd64 --tag nodegit-linux-musl-amd64 -f scripts/Dockerfile.alpine .
+      #     docker create --platform=linux/amd64 --name nodegit-linux-musl-amd64 nodegit-linux-musl-amd64
+      #     docker cp "nodegit-linux-musl-amd64:/app/prebuilds" .
+      - name: build linux musl arm
+        run: |
+          docker build --platform=linux/arm64 --tag nodegit-linux-musl-arm64 -f scripts/Dockerfile.alpine .
+          docker create --platform=linux/arm64 --name nodegit-linux-musl-arm64 nodegit-linux-musl-arm64
+          docker cp "nodegit-linux-musl-arm64:/app/prebuilds" .
+      - name: "list the generated files"
+        run: find prebuilds
+      - uses: actions/upload-artifact@v4
+        with:
+          name: prebuild-linux-arm64
+          path: ./prebuilds
+          retention-days: 14
