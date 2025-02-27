@@ -25,7 +25,7 @@ jobs:
             host: ubuntu-20.04
 
           - name: linux-x64
-            host: ubnutu-22.04-arm
+            host: ubuntu-22.04-arm
     env:
       CC: clang
       CXX: clang++
