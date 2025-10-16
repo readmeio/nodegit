@@ -15,11 +15,11 @@ jobs:
         os:
           # macos-14 is arm64 (m1)
           - name: darwin
-            host: macos-15-arm64
+            host: macos-14-arm64
 
           # macos-13 is x86
           - name: mac-x64
-            host: macos-15-intel
+            host: macos-14-intel
 
           # ubuntu-22.04 is x86. Still no arm linux runners yet
           # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners/about-github-hosted-runners#standard-github-hosted-runners-for-public-repositories
