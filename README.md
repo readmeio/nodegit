@@ -1,7 +1,5 @@
 # NodeGit
 
-deleteme
-
 > Node bindings to the [libgit2](http://libgit2.github.com/) project.
 
 [![Actions Status](https://github.com/nodegit/nodegit/workflows/Testing/badge.svg)](https://github.com/nodegit/nodegit/actions)
