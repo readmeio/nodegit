@@ -116,6 +116,9 @@ jobs:
           find ./prebuilds
       - name: npm install
         run: npm ci
+
+      # this works without a token because this repo is configured via OIDC
+      # https://docs.npmjs.com/trusted-publishers
       - name: publish
         run: |
-          (cat "$NPM_CONFIG_USERCONFIG" || true) && npm publish --provenance --access public
+          npm publish --provenance --access public
