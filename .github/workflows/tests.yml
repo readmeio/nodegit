@@ -65,6 +65,8 @@ jobs:
         with:
           node-version: 20
           check-latest: true
+      - name: Test
+        run: |
           set -xe
           mkdir ~/.ssh_tests
           chmod 700 ~/.ssh_tests
