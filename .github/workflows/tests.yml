@@ -16,13 +16,13 @@ jobs:
       npm_config_clang: 1
       GYP_DEFINES: use_obsolete_asm=true
       DEBIAN_FRONTEND: "noninteractive"
-    runs-on: ubuntu-20.04
-    container: ubuntu:20.04
+    runs-on: ubuntu-22.04
+    container: ubuntu:22.04
     steps:
       - name: prerequisites
         run: |
           apt-get update
-          apt-get install -y software-properties-common git build-essential clang libssl-dev libkrb5-dev libc++-dev wget python3
+          apt-get install -y software-properties-common git build-essential clang libssl-dev libkrb5-dev libc++-dev wget python3 zlib1g-dev
       - uses: actions/checkout@v4
         with:
           submodules: true
