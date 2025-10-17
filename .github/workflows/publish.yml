@@ -57,27 +57,32 @@ jobs:
           path: ./prebuilds
           retention-days: 14
 
+  # there are no alpine builders, so we do our musl builds in qemu, which is
+  # slow as a dumb running sonic. TODO: figure out how to cross-compile
+  # on the ubuntu runners; if we can it would save a ton of time
   cross-compile:
-    name: "cross compile linux/arm"
+    name: "cross compile ${{ matrix.platform }}-musl"
     runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        include:
+          - platform: linux/amd64
+            arch: amd64
+          - platform: linux/arm64
+            arch: arm64
     steps:
       - uses: actions/checkout@v5
       - uses: docker/setup-qemu-action@v3
-      - name: build linux musl x64
+      - name: build linux musl ${{ matrix.arch }}
         run: |
-          docker build --platform=linux/amd64 --tag nodegit-linux-musl-amd64 -f scripts/Dockerfile.alpine .
-          docker create --platform=linux/amd64 --name nodegit-linux-musl-amd64 nodegit-linux-musl-amd64
-          docker cp "nodegit-linux-musl-amd64:/app/prebuilds" .
-      - name: build linux musl arm
-        run: |
-          docker build --platform=linux/arm64 --tag nodegit-linux-musl-arm64 -f scripts/Dockerfile.alpine .
-          docker create --platform=linux/arm64 --name nodegit-linux-musl-arm64 nodegit-linux-musl-arm64
-          docker cp "nodegit-linux-musl-arm64:/app/prebuilds" .
+          docker build --platform=${{ matrix.platform }} --tag nodegit-linux-musl-${{ matrix.arch }} -f scripts/Dockerfile.alpine .
+          docker create --platform=${{ matrix.platform }} --name nodegit-linux-musl-${{ matrix.arch }} nodegit-linux-musl-${{ matrix.arch }}
+          docker cp "nodegit-linux-musl-${{ matrix.arch }}:/app/prebuilds" .
       - name: "list the generated files"
         run: find prebuilds
       - uses: actions/upload-artifact@v4
         with:
-          name: prebuild-linux-arm64
+          name: prebuild-linux-musl-${{ matrix.arch }}
           path: ./prebuilds
           retention-days: 14
 
@@ -110,8 +115,8 @@ jobs:
           mkdir -p prebuilds/darwin-arm64
           find ${{ steps.download.outputs.download-path }}
           mv ${{ steps.download.outputs.download-path}}/prebuild-Linux-X64/linux-x64/* ./prebuilds/linux-x64/
-          mv ${{ steps.download.outputs.download-path}}/prebuild-linux-arm64/linux-arm64/* ./prebuilds/linux-arm64/
-          mv ${{ steps.download.outputs.download-path}}/prebuild-linux-arm64/linux-x64/* ./prebuilds/linux-x64/
+          mv ${{ steps.download.outputs.download-path}}/prebuild-linux-musl-arm64/linux-arm64/* ./prebuilds/linux-arm64/
+          mv ${{ steps.download.outputs.download-path}}/prebuild-linux-musl-arm64/linux-x64/* ./prebuilds/linux-x64/
           mv ${{ steps.download.outputs.download-path}}/prebuild-macOS-ARM64/darwin-arm64/* ./prebuilds/darwin-arm64/
           mv ${{ steps.download.outputs.download-path}}/prebuild-macOS-X64/darwin-x64/* ./prebuilds/darwin-x64/
           find ./prebuilds
