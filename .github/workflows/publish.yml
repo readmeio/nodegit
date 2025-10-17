@@ -51,6 +51,8 @@ jobs:
 
           npm ci
           npx prebuildify --napi --strip --tag-libc -t "$(node --version | tr -d 'v')"
+      - name: Run tests
+        run: npm test
       - uses: actions/upload-artifact@v4
         with:
           name: prebuild-${{ runner.os }}-${{ runner.arch }}
@@ -68,6 +70,7 @@ jobs:
         run: |
           docker build --platform=linux/amd64 --tag nodegit-linux-musl-amd64 -f scripts/Dockerfile.alpine .
           docker create --platform=linux/amd64 --name nodegit-linux-musl-amd64 nodegit-linux-musl-amd64
+          docker run --platform=linux/amd64 --rm nodegit-linux-musl-amd64 npm test
           docker cp "nodegit-linux-musl-amd64:/app/prebuilds" .
       - name: "list the generated files"
         run: find prebuilds
@@ -86,6 +89,7 @@ jobs:
         run: |
           docker build --platform=linux/arm64 --tag nodegit-linux-musl-arm64 -f scripts/Dockerfile.alpine .
           docker create --platform=linux/arm64 --name nodegit-linux-musl-arm64 nodegit-linux-musl-arm64
+          docker run --platform=linux/amd64 --rm nodegit-linux-musl-amd64 npm test
           docker cp "nodegit-linux-musl-arm64:/app/prebuilds" .
       - name: "list the generated files"
         run: find prebuilds
