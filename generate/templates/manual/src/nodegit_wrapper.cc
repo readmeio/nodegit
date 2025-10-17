@@ -31,9 +31,9 @@ NodeGitWrapper<Traits>::NodeGitWrapper(typename Traits::cType *raw, bool selfFre
   this->selfFreeing = selfFreeing;
 
   if (selfFreeing) {
-    SelfFreeingInstanceCount++;
+    SelfFreeingInstanceCount.fetch_add(1, std::memory_order_relaxed);
   } else {
-    NonSelfFreeingConstructedCount++;
+    NonSelfFreeingConstructedCount.fetch_add(1, std::memory_order_relaxed);
   }
 }
 
@@ -50,11 +50,11 @@ NodeGitWrapper<Traits>::~NodeGitWrapper() {
   Unlink();
   if (Traits::isFreeable && selfFreeing) {
     Traits::free(raw);
-    SelfFreeingInstanceCount--;
+    SelfFreeingInstanceCount.fetch_sub(1, std::memory_order_relaxed);
     raw = NULL;
   }
   else if (!selfFreeing) {
-    --NonSelfFreeingConstructedCount;
+    NonSelfFreeingConstructedCount.fetch_sub(1, std::memory_order_relaxed);
   }
 }
 
@@ -145,12 +145,12 @@ thread_local std::atomic<int> NodeGitWrapper<Traits>::NonSelfFreeingConstructedC
 
 template<typename Traits>
 NAN_METHOD(NodeGitWrapper<Traits>::GetSelfFreeingInstanceCount) {
-  info.GetReturnValue().Set(SelfFreeingInstanceCount.load());
+  info.GetReturnValue().Set(SelfFreeingInstanceCount.load(std::memory_order_relaxed));
 }
 
 template<typename Traits>
 NAN_METHOD(NodeGitWrapper<Traits>::GetNonSelfFreeingConstructedCount) {
-  info.GetReturnValue().Set(NonSelfFreeingConstructedCount.load());
+  info.GetReturnValue().Set(NonSelfFreeingConstructedCount.load(std::memory_order_relaxed));
 }
 
 template<typename Traits>
