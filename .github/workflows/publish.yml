@@ -33,6 +33,7 @@ jobs:
       CXX: clang++
       npm_config_clang: 1
       GYP_DEFINES: use_obsolete_asm=true
+      CXXFLAGS: -std=c++17
     runs-on: ${{ matrix.os.host }}
     steps:
       - uses: actions/checkout@v5
