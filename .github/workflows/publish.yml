@@ -57,39 +57,48 @@ jobs:
           path: ./prebuilds
           retention-days: 14
 
-  # there are no alpine builders, so we do our musl builds in qemu, which is
-  # slow as a dumb running sonic. TODO: figure out how to cross-compile
-  # on the ubuntu runners; if we can it would save a ton of time
-  cross-compile:
-    name: "cross compile ${{ matrix.platform }}-musl"
+  # musl build still needs QEMU since there are no native Alpine/musl runners
+  cross-compile-amd64:
+    name: "cross compile linux/amd64-musl"
     runs-on: ubuntu-22.04
-    strategy:
-      matrix:
-        include:
-          - platform: linux/amd64
-            arch: amd64
-          - platform: linux/arm64
-            arch: arm64
     steps:
       - uses: actions/checkout@v5
       - uses: docker/setup-qemu-action@v3
-      - name: build linux musl ${{ matrix.arch }}
+      - name: build linux musl amd64
         run: |
-          docker build --platform=${{ matrix.platform }} --tag nodegit-linux-musl-${{ matrix.arch }} -f scripts/Dockerfile.alpine .
-          docker create --platform=${{ matrix.platform }} --name nodegit-linux-musl-${{ matrix.arch }} nodegit-linux-musl-${{ matrix.arch }}
-          docker cp "nodegit-linux-musl-${{ matrix.arch }}:/app/prebuilds" .
+          docker build --platform=linux/amd64 --tag nodegit-linux-musl-amd64 -f scripts/Dockerfile.alpine .
+          docker create --platform=linux/amd64 --name nodegit-linux-musl-amd64 nodegit-linux-musl-amd64
+          docker cp "nodegit-linux-musl-amd64:/app/prebuilds" .
       - name: "list the generated files"
         run: find prebuilds
       - uses: actions/upload-artifact@v4
         with:
-          name: prebuild-linux-musl-${{ matrix.arch }}
+          name: prebuild-linux-musl-amd64
+          path: ./prebuilds
+          retention-days: 14
+
+  build-musl-arm:
+    name: "build linux/arm64-musl"
+    runs-on: ubuntu-22.04-arm
+    steps:
+      - uses: actions/checkout@v5
+      - name: build linux musl arm64
+        run: |
+          docker build --platform=linux/arm64 --tag nodegit-linux-musl-arm64 -f scripts/Dockerfile.alpine .
+          docker create --platform=linux/arm64 --name nodegit-linux-musl-arm64 nodegit-linux-musl-arm64
+          docker cp "nodegit-linux-musl-arm64:/app/prebuilds" .
+      - name: "list the generated files"
+        run: find prebuilds
+      - uses: actions/upload-artifact@v4
+        with:
+          name: prebuild-linux-musl-arm64
           path: ./prebuilds
           retention-days: 14
 
   # https://docs.npmjs.com/generating-provenance-statements#publishing-packages-with-provenance-via-github-actions
   publish:
     runs-on: ubuntu-latest
-    needs: [build, cross-compile]
+    needs: [build, cross-compile-amd64, build-musl-arm]
     permissions:
       id-token: write
       contents: read
@@ -113,10 +122,12 @@ jobs:
           mkdir -p prebuilds/linux-arm64
           mkdir -p prebuilds/linux-x64
           mkdir -p prebuilds/darwin-arm64
+          mkdir -p prebuilds/darwin-x64
           find ${{ steps.download.outputs.download-path }}
           mv ${{ steps.download.outputs.download-path}}/prebuild-Linux-X64/linux-x64/* ./prebuilds/linux-x64/
+          mv ${{ steps.download.outputs.download-path}}/prebuild-Linux-ARM64/linux-arm64/* ./prebuilds/linux-arm64/
+          mv ${{ steps.download.outputs.download-path}}/prebuild-linux-musl-amd64/linux-x64/* ./prebuilds/linux-x64/
           mv ${{ steps.download.outputs.download-path}}/prebuild-linux-musl-arm64/linux-arm64/* ./prebuilds/linux-arm64/
-          mv ${{ steps.download.outputs.download-path}}/prebuild-linux-musl-arm64/linux-x64/* ./prebuilds/linux-x64/
           mv ${{ steps.download.outputs.download-path}}/prebuild-macOS-ARM64/darwin-arm64/* ./prebuilds/darwin-arm64/
           mv ${{ steps.download.outputs.download-path}}/prebuild-macOS-X64/darwin-x64/* ./prebuilds/darwin-x64/
           find ./prebuilds
