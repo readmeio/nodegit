@@ -52,7 +52,21 @@ jobs:
           npm ci
           npx prebuildify --napi --strip --tag-libc -t "$(node --version | tr -d 'v')"
       - name: Run tests
-        run: npm test
+        run: |
+          set -xe
+          mkdir ~/.ssh_tests
+          chmod 700 ~/.ssh_tests
+          printf "%b" "Host *\n\tStrictHostKeyChecking no\n" > ~/.ssh_tests/config
+          cat test/id_rsa.pub > ~/.ssh_tests/id_rsa.pub
+          cat test/id_rsa.enc | base64 -d > ~/.ssh_tests/id_rsa
+          chmod 600 ~/.ssh_tests/id_rsa*
+          git config --global user.name "John Doe"
+          git config --global user.email johndoe@example.com
+
+          eval "$(ssh-agent -s)"
+          ssh-add ~/.ssh_tests/id_rsa
+
+          npm test
       - uses: actions/upload-artifact@v4
         with:
           name: prebuild-${{ runner.os }}-${{ runner.arch }}
@@ -70,7 +84,19 @@ jobs:
         run: |
           docker build --platform=linux/amd64 --tag nodegit-linux-musl-amd64 -f scripts/Dockerfile.alpine .
           docker create --platform=linux/amd64 --name nodegit-linux-musl-amd64 nodegit-linux-musl-amd64
-          docker run --platform=linux/amd64 --rm nodegit-linux-musl-amd64 npm test
+          docker run --platform=linux/amd64 --rm nodegit-linux-musl-amd64 sh -c "
+            mkdir ~/.ssh_tests &&
+            chmod 700 ~/.ssh_tests &&
+            printf '%b' 'Host *\n\tStrictHostKeyChecking no\n' > ~/.ssh_tests/config &&
+            cat test/id_rsa.pub > ~/.ssh_tests/id_rsa.pub &&
+            cat test/id_rsa.enc | base64 -d > ~/.ssh_tests/id_rsa &&
+            chmod 600 ~/.ssh_tests/id_rsa* &&
+            git config --global user.name 'John Doe' &&
+            git config --global user.email johndoe@example.com &&
+            eval \"\$(ssh-agent -s)\" &&
+            ssh-add ~/.ssh_tests/id_rsa &&
+            npm test
+          "
           docker cp "nodegit-linux-musl-amd64:/app/prebuilds" .
       - name: "list the generated files"
         run: find prebuilds
@@ -89,7 +115,19 @@ jobs:
         run: |
           docker build --platform=linux/arm64 --tag nodegit-linux-musl-arm64 -f scripts/Dockerfile.alpine .
           docker create --platform=linux/arm64 --name nodegit-linux-musl-arm64 nodegit-linux-musl-arm64
-          docker run --platform=linux/amd64 --rm nodegit-linux-musl-amd64 npm test
+          docker run --platform=linux/arm64 --rm nodegit-linux-musl-arm64 sh -c "
+            mkdir ~/.ssh_tests &&
+            chmod 700 ~/.ssh_tests &&
+            printf '%b' 'Host *\n\tStrictHostKeyChecking no\n' > ~/.ssh_tests/config &&
+            cat test/id_rsa.pub > ~/.ssh_tests/id_rsa.pub &&
+            cat test/id_rsa.enc | base64 -d > ~/.ssh_tests/id_rsa &&
+            chmod 600 ~/.ssh_tests/id_rsa* &&
+            git config --global user.name 'John Doe' &&
+            git config --global user.email johndoe@example.com &&
+            eval \"\$(ssh-agent -s)\" &&
+            ssh-add ~/.ssh_tests/id_rsa &&
+            npm test
+          "
           docker cp "nodegit-linux-musl-arm64:/app/prebuilds" .
       - name: "list the generated files"
         run: find prebuilds
