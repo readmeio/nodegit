@@ -49,6 +49,32 @@ namespace nodegit {
       return nodegit::TrackerWrap::SizeFromList(&trackerList);
     }
 
+    // Instance counters for diagnostic purposes - moved from thread_local to context-based
+    // to fix Linux ARM test failures where thread_local counters don't match tracker list
+    inline void IncrementSelfFreeingInstanceCount() {
+      selfFreeingInstanceCount++;
+    }
+
+    inline void DecrementSelfFreeingInstanceCount() {
+      selfFreeingInstanceCount--;
+    }
+
+    inline void IncrementNonSelfFreeingConstructedCount() {
+      nonSelfFreeingConstructedCount++;
+    }
+
+    inline void DecrementNonSelfFreeingConstructedCount() {
+      nonSelfFreeingConstructedCount--;
+    }
+
+    inline int GetSelfFreeingInstanceCount() const {
+      return selfFreeingInstanceCount;
+    }
+
+    inline int GetNonSelfFreeingConstructedCount() const {
+      return nonSelfFreeingConstructedCount;
+    }
+
   private:
     v8::Isolate *isolate;
 
@@ -63,6 +89,10 @@ namespace nodegit {
     std::map<std::string, std::shared_ptr<CleanupHandle>> cleanupHandles;
 
     nodegit::TrackerWrap::TrackerList trackerList;
+
+    // Instance counters - moved from thread_local to context-based for ARM Linux compatibility
+    int selfFreeingInstanceCount = 0;
+    int nonSelfFreeingConstructedCount = 0;
 
     static std::map<v8::Isolate *, Context *> contexts;
   };

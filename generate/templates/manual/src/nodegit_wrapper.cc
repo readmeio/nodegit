@@ -31,9 +31,9 @@ NodeGitWrapper<Traits>::NodeGitWrapper(typename Traits::cType *raw, bool selfFre
   this->selfFreeing = selfFreeing;
 
   if (selfFreeing) {
-    SelfFreeingInstanceCount++;
+    nodegitContext->IncrementSelfFreeingInstanceCount();
   } else {
-    NonSelfFreeingConstructedCount++;
+    nodegitContext->IncrementNonSelfFreeingConstructedCount();
   }
 }
 
@@ -50,11 +50,11 @@ NodeGitWrapper<Traits>::~NodeGitWrapper() {
   Unlink();
   if (Traits::isFreeable && selfFreeing) {
     Traits::free(raw);
-    SelfFreeingInstanceCount--;
+    nodegitContext->DecrementSelfFreeingInstanceCount();
     raw = NULL;
   }
   else if (!selfFreeing) {
-    --NonSelfFreeingConstructedCount;
+    nodegitContext->DecrementNonSelfFreeingConstructedCount();
   }
 }
 
@@ -136,20 +136,17 @@ void NodeGitWrapper<Traits>::ClearValue() {
   raw = NULL;
 }
 
-template<typename Traits>
-thread_local int NodeGitWrapper<Traits>::SelfFreeingInstanceCount;
-
-template<typename Traits>
-thread_local int NodeGitWrapper<Traits>::NonSelfFreeingConstructedCount;
 
 template<typename Traits>
 NAN_METHOD(NodeGitWrapper<Traits>::GetSelfFreeingInstanceCount) {
-  info.GetReturnValue().Set(SelfFreeingInstanceCount);
+  nodegit::Context *currentContext = nodegit::Context::GetCurrentContext();
+  info.GetReturnValue().Set(currentContext->GetSelfFreeingInstanceCount());
 }
 
 template<typename Traits>
 NAN_METHOD(NodeGitWrapper<Traits>::GetNonSelfFreeingConstructedCount) {
-  info.GetReturnValue().Set(NonSelfFreeingConstructedCount);
+  nodegit::Context *currentContext = nodegit::Context::GetCurrentContext();
+  info.GetReturnValue().Set(currentContext->GetNonSelfFreeingConstructedCount());
 }
 
 template<typename Traits>
