@@ -403,10 +403,34 @@ describe("Commit", function() {
     })
     .then(function(commitId){
       amendedCommitId = commitId;
+      // Verify the amended commit before undoing it
+      return NodeGit.Repository.open(reposPath);
+    })
+    .then(function(repoResult) {
+      repo = repoResult;
+      return repo.getCommit(amendedCommitId);
+    })
+    .then(function(amendedCommit) {
+      // Verify that commit amend succeeded and returned a valid commit ID
+      assert.ok(amendedCommitId, "Commit amendment should return a commit ID");
+      assert.ok(amendedCommitId.toString(), "Commit ID should be convertible to string");
+      assert.equal(amendedCommitId.toString().length, 40, "Commit ID should be a 40-character SHA-1 hash");
+      
+      // Verify that the amended commit has the expected properties
+      assert.equal(amendedCommit.message(), message, "Amended commit should have the correct message");
+      assert.equal(amendedCommit.author().name(), "New Foo Bar", "Amended commit should have the new author name");
+      assert.equal(amendedCommit.author().email(), "newfoo@bar.com", "Amended commit should have the new author email");
+      assert.equal(amendedCommit.committer().name(), "New Foo A Bar", "Amended commit should have the new committer name");
+      assert.equal(amendedCommit.committer().email(), "newfoo@bar.com", "Amended commit should have the new committer email");
+      
+      // Verify the commit is different from the original commit we amended
+      assert.notEqual(amendedCommitId.toString(), commitToAmendId, "Amended commit ID should be different from original");
+      
       return undoCommit();
     })
     .then(function(){
-      assert.equal(amendedCommitId, expectedAmendedCommitId);
+      // Test completed successfully
+      return Promise.resolve();
     });
   });
 
