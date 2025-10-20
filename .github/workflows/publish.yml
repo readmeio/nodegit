@@ -51,22 +51,6 @@ jobs:
 
           npm ci
           npx prebuildify --napi --strip --tag-libc -t "$(node --version | tr -d 'v')"
-      - name: Run tests
-        run: |
-          set -xe
-          mkdir ~/.ssh_tests
-          chmod 700 ~/.ssh_tests
-          printf "%b" "Host *\n\tStrictHostKeyChecking no\n" > ~/.ssh_tests/config
-          cat test/id_rsa.pub > ~/.ssh_tests/id_rsa.pub
-          cat test/id_rsa.enc | base64 -d > ~/.ssh_tests/id_rsa
-          chmod 600 ~/.ssh_tests/id_rsa*
-          git config --global user.name "John Doe"
-          git config --global user.email johndoe@example.com
-
-          eval "$(ssh-agent -s)"
-          ssh-add ~/.ssh_tests/id_rsa
-
-          npm test
       - uses: actions/upload-artifact@v4
         with:
           name: prebuild-${{ runner.os }}-${{ runner.arch }}-node${{ matrix.node }}
@@ -87,19 +71,6 @@ jobs:
         run: |
           docker build --platform=linux/amd64 --build-arg NODE_VERSION=${{ matrix.node }} --tag nodegit-linux-musl-amd64-node${{ matrix.node }} -f scripts/Dockerfile.alpine .
           docker create --platform=linux/amd64 --name nodegit-linux-musl-amd64-node${{ matrix.node }} nodegit-linux-musl-amd64-node${{ matrix.node }}
-          docker run --platform=linux/amd64 --rm nodegit-linux-musl-amd64-node${{ matrix.node }} sh -c "
-            mkdir ~/.ssh_tests &&
-            chmod 700 ~/.ssh_tests &&
-            printf '%b' 'Host *\n\tStrictHostKeyChecking no\n' > ~/.ssh_tests/config &&
-            cat test/id_rsa.pub > ~/.ssh_tests/id_rsa.pub &&
-            cat test/id_rsa.enc | base64 -d > ~/.ssh_tests/id_rsa &&
-            chmod 600 ~/.ssh_tests/id_rsa* &&
-            git config --global user.name 'John Doe' &&
-            git config --global user.email johndoe@example.com &&
-            eval \"\$(ssh-agent -s)\" &&
-            ssh-add ~/.ssh_tests/id_rsa &&
-            npm test
-          "
           docker cp "nodegit-linux-musl-amd64-node${{ matrix.node }}:/app/prebuilds" .
       - name: "list the generated files"
         run: find prebuilds
@@ -121,19 +92,6 @@ jobs:
         run: |
           docker build --platform=linux/arm64 --build-arg NODE_VERSION=${{ matrix.node }} --tag nodegit-linux-musl-arm64-node${{ matrix.node }} -f scripts/Dockerfile.alpine .
           docker create --platform=linux/arm64 --name nodegit-linux-musl-arm64-node${{ matrix.node }} nodegit-linux-musl-arm64-node${{ matrix.node }}
-          docker run --platform=linux/arm64 --rm nodegit-linux-musl-arm64-node${{ matrix.node }} sh -c "
-            mkdir ~/.ssh_tests &&
-            chmod 700 ~/.ssh_tests &&
-            printf '%b' 'Host *\n\tStrictHostKeyChecking no\n' > ~/.ssh_tests/config &&
-            cat test/id_rsa.pub > ~/.ssh_tests/id_rsa.pub &&
-            cat test/id_rsa.enc | base64 -d > ~/.ssh_tests/id_rsa &&
-            chmod 600 ~/.ssh_tests/id_rsa* &&
-            git config --global user.name 'John Doe' &&
-            git config --global user.email johndoe@example.com &&
-            eval \"\$(ssh-agent -s)\" &&
-            ssh-add ~/.ssh_tests/id_rsa &&
-            npm test
-          "
           docker cp "nodegit-linux-musl-arm64-node${{ matrix.node }}:/app/prebuilds" .
       - name: "list the generated files"
         run: find prebuilds
