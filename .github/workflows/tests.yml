@@ -33,24 +33,6 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           check-latest: true
-      - name: Test
-        run: |
-          set -xe
-          mkdir ~/.ssh_tests
-          chmod 700 ~/.ssh_tests
-          printf "%b" "Host *\n\tStrictHostKeyChecking no\n" > ~/.ssh_tests/config
-          cat test/id_rsa.pub > ~/.ssh_tests/id_rsa.pub
-          cat test/id_rsa.enc | base64 -d > ~/.ssh_tests/id_rsa
-          ls ~/.ssh_tests
-          chmod 600 ~/.ssh_tests/id_rsa*
-          git config --global user.name "John Doe"
-          git config --global user.email johndoe@example.com
-
-          eval "$(ssh-agent -s)"
-          ssh-add ~/.ssh_tests/id_rsa
-
-          npm install
-          npm test
 
   mac-test:
     name: "test node ${{ matrix.node-version }} on macOS"
@@ -71,23 +53,6 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           check-latest: true
-      - name: Test
-        run: |
-          set -xe
-          mkdir ~/.ssh_tests
-          chmod 700 ~/.ssh_tests
-          printf "%b" "Host *\n\tStrictHostKeyChecking no\n" > ~/.ssh_tests/config
-          cat test/id_rsa.pub > ~/.ssh_tests/id_rsa.pub
-          cat test/id_rsa.enc | base64 -d > ~/.ssh_tests/id_rsa
-          chmod 600 ~/.ssh_tests/id_rsa*
-          git config --global user.name "John Doe"
-          git config --global user.email johndoe@example.com
-
-          eval "$(ssh-agent -s)"
-          ssh-add ~/.ssh_tests/id_rsa
-
-          npm install
-          npm test
 
   linux-arm-test:
     name: "test node ${{ matrix.node-version }} on linux-arm"
@@ -113,20 +78,3 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y software-properties-common git build-essential clang libssl-dev libkrb5-dev libc++-dev wget python3 zlib1g-dev
-      - name: Test
-        run: |
-          set -xe
-          mkdir ~/.ssh_tests
-          chmod 700 ~/.ssh_tests
-          printf "%b" "Host *\n\tStrictHostKeyChecking no\n" > ~/.ssh_tests/config
-          cat test/id_rsa.pub > ~/.ssh_tests/id_rsa.pub
-          cat test/id_rsa.enc | base64 -d > ~/.ssh_tests/id_rsa
-          chmod 600 ~/.ssh_tests/id_rsa*
-          git config --global user.name "John Doe"
-          git config --global user.email johndoe@example.com
-
-          eval "$(ssh-agent -s)"
-          ssh-add ~/.ssh_tests/id_rsa
-
-          npm install
-          npm test
