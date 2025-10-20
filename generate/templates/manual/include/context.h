@@ -1,7 +1,6 @@
 #ifndef NODEGIT_CONTEXT
 #define NODEGIT_CONTEXT
 
-#include <atomic>
 #include <map>
 #include <memory>
 #include <nan.h>

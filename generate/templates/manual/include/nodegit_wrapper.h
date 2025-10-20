@@ -2,7 +2,6 @@
 #define NODEGIT_WRAPPER_H
 
 #include <algorithm>
-#include <atomic>
 #include <unordered_map>
 
 #include "tracker_wrap.h"
@@ -52,10 +51,10 @@ protected:
   // CopyablePersistentTraits are used to get the reset-on-destruct behavior.
   Nan::Persistent<v8::Object, Nan::CopyablePersistentTraits<v8::Object> > owner;
 
-  // diagnostic count of self-freeing object instances - using atomic for ARM Linux compatibility
-  thread_local static std::atomic<int> SelfFreeingInstanceCount;
-  // diagnostic count of constructed non-self-freeing object instances - using atomic for ARM Linux compatibility
-  thread_local static std::atomic<int> NonSelfFreeingConstructedCount;
+  // diagnostic count of self-freeing object instances
+  thread_local static int SelfFreeingInstanceCount;
+  // diagnostic count of constructed non-self-freeing object instances
+  thread_local static int NonSelfFreeingConstructedCount;
 
   static void InitializeTemplate(v8::Local<v8::FunctionTemplate> &tpl);
 
