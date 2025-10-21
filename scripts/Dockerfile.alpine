@@ -11,4 +11,9 @@ ADD . /app
 WORKDIR /app
 
 RUN npm ci && \
-  npx prebuildify --napi --strip --tag-libc --tag-node${NODE_VERSION} -t "$(node --version | tr -d 'v')"
+  npx prebuildify --napi --strip --tag-libc -t "$(node --version | tr -d 'v')" &&
+  for file in prebuilds/**/*.node; do \
+    dir=$(dirname "$file"); \
+    base=$(basename "$file" .node); \
+    mv "$file" "$dir/${base}-node${NODE_VERSION}.node"; \
+  done

@@ -50,7 +50,19 @@ jobs:
             sudo apt-get install -y software-properties-common git build-essential clang libssl-dev libkrb5-dev libc++-dev wget python3 zlib1g-dev
 
           npm ci
-          npx prebuildify --napi --strip --tag-libc --tag-node${{ matrix.node }} -t "$(node --version | tr -d 'v')"
+          npx prebuildify --napi --strip --tag-libc -t "$(node --version | tr -d 'v')"
+
+          # we have to build with napi, or the build doesn't compile. However,
+          # prebuildify assumes that napi builds are usable across node
+          # versions, and that is empirically not the case here, so we have to
+          # specify the node version that we're building for. I would _really_
+          # like to understand why we must pass napi and yet cannot use it
+          # across versions, but I don't currently
+          for file in prebuilds/**/*.node; do
+            dir=$(dirname "$file")
+            base=$(basename "$file" .node)
+            mv "$file" "$dir/${base}-node${matrix.node}.node"
+          done
       - uses: actions/upload-artifact@v4
         with:
           name: prebuild-${{ runner.os }}-${{ runner.arch }}-node${{ matrix.node }}
