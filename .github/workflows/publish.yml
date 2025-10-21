@@ -61,7 +61,7 @@ jobs:
           for file in prebuilds/**/*.node; do
             dir=$(dirname "$file")
             base=$(basename "$file" .node)
-            mv "$file" "$dir/${base}-node${matrix.node}.node"
+            mv "$file" "$dir/${base}-node${{ matrix.node }}.node"
           done
       - uses: actions/upload-artifact@v4
         with:
