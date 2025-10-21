@@ -11,4 +11,4 @@ ADD . /app
 WORKDIR /app
 
 RUN npm ci && \
-  npx prebuildify --strip --tag-libc -t "$(node --version | tr -d 'v')"
+  npx prebuildify --strip --napi=false --tag-libc -t "$(node --version | tr -d 'v')"
