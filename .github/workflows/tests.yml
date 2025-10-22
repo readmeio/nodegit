@@ -53,7 +53,7 @@ jobs:
           npm test
 
   mac-test:
-    name: "test node ${{ matrix.node-version }} on macOS"
+    name: "test node ${{ matrix.node-version }} on ${{ matrix.runner }}"
     env:
       CC: clang
       CXX: clang++
