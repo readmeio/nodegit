@@ -17,11 +17,12 @@ jobs:
           - name: darwin
             host: macos-26 #arm64
 
+          # macos-15-intel is the last intel image and will go out of service
+          # in fall 2027
           - name: mac-x64
             host: macos-15-intel
 
-          # ubuntu-22.04 is x86. Still no arm linux runners yet
-          # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners/about-github-hosted-runners#standard-github-hosted-runners-for-public-repositories
+          # ubuntu-22.04 is x86
           - name: linux
             host: ubuntu-22.04
 
