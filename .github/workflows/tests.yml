@@ -20,7 +20,7 @@ jobs:
     container: ubuntu:22.04
     strategy:
       matrix:
-        node-version: [20, 22]
+        node-version: [22]
     steps:
       - name: prerequisites
         run: |
@@ -61,7 +61,7 @@ jobs:
       GYP_DEFINES: use_obsolete_asm=true
     strategy:
       matrix:
-        node-version: [20, 22]
+        node-version: [22]
         runner: ["macos-26", "macos-15-intel"]
     runs-on: ${{ matrix.runner }}
     steps:
@@ -101,7 +101,7 @@ jobs:
     runs-on: ubuntu-22.04-arm
     strategy:
       matrix:
-        node-version: [20, 22]
+        node-version: [22]
     steps:
       - uses: actions/checkout@v5
         with:

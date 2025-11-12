@@ -4,24 +4,26 @@
 
 [![Actions Status](https://github.com/nodegit/nodegit/workflows/Testing/badge.svg)](https://github.com/nodegit/nodegit/actions)
 
-**Stable (libgit2@v0.28.3): 0.28.3**
+## What is this fork?
 
-## Have a problem? Come chat with us!
+This fork contains a prebuilt version of nodegit that is compatible with **node
+22.x** and the following platforms/arch/libc type:
 
-Visit [slack.libgit2.org](http://slack.libgit2.org/) to sign up, then join us in #nodegit.
+- **darwin/arm64/glibc**
+- **darwin/amd64/glibc**
+- **linux/amd64/glibc**
+- **linux/arm64/glibc**
+- **linux/amd64/musl**
+- **linux/arm64/musl**
 
-## Maintained by
+This means that if you are using node 22 and one of those platforms, you can
+have a much faster install because you won't need to build nodegit from source.
+It also means that you will have a slightly larger file in your node_modules
+folder.
+
+## Fork Maintained by
 
 Readme
-
-### Alumni Maintainers
-
-Tim Branyen [@tbranyen](http://twitter.com/tbranyen),
-John Haley [@johnhaley81](http://twitter.com/johnhaley81),
-Max Korp [@maxkorp](http://twitter.com/MaximilianoKorp),
-Steve Smith [@orderedlist](https://twitter.com/orderedlist),
-Michael Robinson [@codeofinterest](http://twitter.com/codeofinterest), and
-Nick Kallen [@nk](http://twitter.com/nk)
 
 ## API Documentation.
 
@@ -36,27 +38,12 @@ dependencies.
 npm install nodegit
 ```
 
-If you receive errors about libstdc++, which are commonly experienced when
-building on Travis-CI, you can fix this by upgrading to the latest
-libstdc++-4.9.
-
 In Ubuntu:
 
 ```sh
 sudo add-apt-repository ppa:ubuntu-toolchain-r/test
 sudo apt-get update
 sudo apt-get install libstdc++-4.9-dev
-```
-
-In Travis:
-
-```yaml
-addons:
-  apt:
-    sources:
-      - ubuntu-toolchain-r-test
-    packages:
-      - libstdc++-4.9-dev
 ```
 
 In CircleCI:
