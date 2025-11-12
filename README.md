@@ -38,10 +38,6 @@ dependencies.
 npm install nodegit
 ```
 
-If you receive errors about libstdc++, which are commonly experienced when
-building on Travis-CI, you can fix this by upgrading to the latest
-libstdc++-4.9.
-
 In Ubuntu:
 
 ```sh
