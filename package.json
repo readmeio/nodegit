@@ -39,7 +39,7 @@
     "lib": "./lib"
   },
   "engines": {
-    "node": ">= 20"
+    "node": "22.x"
   },
   "dependencies": {
     "@axosoft/nan": "^2.22.0-gk.1",

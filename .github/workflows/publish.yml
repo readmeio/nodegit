@@ -11,7 +11,7 @@ jobs:
     name: build
     strategy:
       matrix:
-        node: [20, 22]
+        node: [22]
         os:
           # https://github.com/actions/runner-images#available-images
           - name: darwin
@@ -63,7 +63,7 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        node: [20, 22]
+        node: [22]
     steps:
       - uses: actions/checkout@v5
       - uses: docker/setup-qemu-action@v3
@@ -85,7 +85,7 @@ jobs:
     runs-on: ubuntu-22.04-arm
     strategy:
       matrix:
-        node: [20, 22]
+        node: [22]
     steps:
       - uses: actions/checkout@v5
       - name: build linux musl arm64
@@ -134,18 +134,12 @@ jobs:
           mkdir -p prebuilds/darwin-arm64
           mkdir -p prebuilds/darwin-x64
           find ${{ steps.download.outputs.download-path }}
-          # Copy Node 20 and 22 prebuilds for each platform
-          mv ${{ steps.download.outputs.download-path }}/prebuild-Linux-X64-node20/linux-x64/* ./prebuilds/linux-x64/ 2>/dev/null || true
+          # Copy prebuilds for each platform
           mv ${{ steps.download.outputs.download-path }}/prebuild-Linux-X64-node22/linux-x64/* ./prebuilds/linux-x64/ 2>/dev/null || true
-          mv ${{ steps.download.outputs.download-path }}/prebuild-Linux-ARM64-node20/linux-arm64/* ./prebuilds/linux-arm64/ 2>/dev/null || true
           mv ${{ steps.download.outputs.download-path }}/prebuild-Linux-ARM64-node22/linux-arm64/* ./prebuilds/linux-arm64/ 2>/dev/null || true
-          mv ${{ steps.download.outputs.download-path }}/prebuild-linux-musl-amd64-node20/linux-x64/* ./prebuilds/linux-x64/ 2>/dev/null || true
           mv ${{ steps.download.outputs.download-path }}/prebuild-linux-musl-amd64-node22/linux-x64/* ./prebuilds/linux-x64/ 2>/dev/null || true
-          mv ${{ steps.download.outputs.download-path }}/prebuild-linux-musl-arm64-node20/linux-arm64/* ./prebuilds/linux-arm64/ 2>/dev/null || true
           mv ${{ steps.download.outputs.download-path }}/prebuild-linux-musl-arm64-node22/linux-arm64/* ./prebuilds/linux-arm64/ 2>/dev/null || true
-          mv ${{ steps.download.outputs.download-path }}/prebuild-macOS-ARM64-node20/darwin-arm64/* ./prebuilds/darwin-arm64/ 2>/dev/null || true
           mv ${{ steps.download.outputs.download-path }}/prebuild-macOS-ARM64-node22/darwin-arm64/* ./prebuilds/darwin-arm64/ 2>/dev/null || true
-          mv ${{ steps.download.outputs.download-path }}/prebuild-macOS-X64-node20/darwin-x64/* ./prebuilds/darwin-x64/ 2>/dev/null || true
           mv ${{ steps.download.outputs.download-path }}/prebuild-macOS-X64-node22/darwin-x64/* ./prebuilds/darwin-x64/ 2>/dev/null || true
           find ./prebuilds
       - name: npm install
