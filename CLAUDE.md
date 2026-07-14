@@ -2,12 +2,12 @@
 
 ## Overview
 
-This is [@readme/nodegit](https://www.npmjs.com/package/@readme/nodegit), a fork of the original NodeGit library that provides Node.js bindings to libgit2. This fork is maintained by Readme and includes compatibility updates for Node.js 20 and 22.
+This is [@readme/nodegit](https://www.npmjs.com/package/@readme/nodegit), a fork of the original NodeGit library that provides Node.js bindings to libgit2. This fork is maintained by Readme and includes compatibility updates for Node.js 22, 24, and 26.
 
 ## Quick Start
 
 ### Prerequisites
-- Node.js >= 20 (supports Node 20 and 22)
+- Node.js >= 22 (supports Node 22, 24, and 26)
 - Git installed on your system
 - Build tools (automatically handled during install)
 
@@ -101,7 +101,7 @@ Tests are located in:
 ## CI/CD
 
 GitHub Actions workflows:
-- **tests.yml**: Runs tests on Ubuntu 22.04 and macOS-26
+- **tests.yml**: Runs tests on Ubuntu 22.04 and macOS-26 across Node 22, 24, and 26
 - **publish.yml**: Handles package publishing
 
 ## Architecture
@@ -139,7 +139,7 @@ npm install
 
 1. Run tests locally: `npm test`
 2. Ensure linting passes: `npm run lint`  
-3. Test on target Node versions (20, 22)
+3. Test on target Node versions (22, 24, 26)
 4. Update tests if adding new functionality
 
 For more detailed API documentation, visit [nodegit.org](http://www.nodegit.org/).
