@@ -11,8 +11,8 @@ jobs:
   linux-test:
     name: "test node ${{ matrix.node-version }} on linux"
     env:
-      CC: clang
-      CXX: clang++
+      CC: clang-18
+      CXX: clang++-18
       npm_config_clang: 1
       GYP_DEFINES: use_obsolete_asm=true
       DEBIAN_FRONTEND: "noninteractive"
@@ -25,7 +25,12 @@ jobs:
       - name: prerequisites
         run: |
           apt-get update
-          apt-get install -y software-properties-common git build-essential clang libssl-dev libkrb5-dev libc++-dev wget python3 zlib1g-dev
+          apt-get install -y software-properties-common git build-essential clang libssl-dev libkrb5-dev libc++-dev wget python3 zlib1g-dev lsb-release gnupg
+          # Node 24+ headers use C++20 std::source_location, which needs
+          # clang >= 16; ubuntu 22.04 ships clang 14
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          ./llvm.sh 18
       - uses: actions/checkout@v5
         with:
           submodules: true
@@ -93,8 +98,8 @@ jobs:
   linux-arm-test:
     name: "test node ${{ matrix.node-version }} on linux-arm"
     env:
-      CC: clang
-      CXX: clang++
+      CC: clang-18
+      CXX: clang++-18
       npm_config_clang: 1
       GYP_DEFINES: use_obsolete_asm=true
     runs-on: ubuntu-22.04-arm
@@ -112,7 +117,12 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y software-properties-common git build-essential clang libssl-dev libkrb5-dev libc++-dev wget python3 zlib1g-dev
+          sudo apt-get install -y software-properties-common git build-essential clang libssl-dev libkrb5-dev libc++-dev wget python3 zlib1g-dev lsb-release gnupg
+          # Node 24+ headers use C++20 std::source_location, which needs
+          # clang >= 16; ubuntu 22.04 ships clang 14
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh 18
       - name: Test
         run: |
           set -xe

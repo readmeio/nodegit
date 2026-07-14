@@ -44,9 +44,18 @@ jobs:
           check-latest: true
       - name: Prebuildify
         run: |
-          [[ $(uname -o) == *Linux ]] && \
-            sudo apt-get update && \
-            sudo apt-get install -y software-properties-common git build-essential clang libssl-dev libkrb5-dev libc++-dev wget python3 zlib1g-dev
+          if [[ $(uname -o) == *Linux ]]; then
+            sudo apt-get update
+            sudo apt-get install -y software-properties-common git build-essential clang libssl-dev libkrb5-dev libc++-dev wget python3 zlib1g-dev lsb-release gnupg
+            # Node 24+ headers use C++20 std::source_location, which needs
+            # clang >= 16; ubuntu 22.04 ships clang 14. Stay on 22.04 (rather
+            # than a newer runner) to keep the glibc 2.35 prebuild baseline.
+            wget https://apt.llvm.org/llvm.sh
+            chmod +x llvm.sh
+            sudo ./llvm.sh 18
+            export CC=clang-18
+            export CXX=clang++-18
+          fi
 
           npm ci
           JOBS=2 npx prebuildify --strip --napi=false --tag-libc -t "$(node --version | tr -d 'v')"
