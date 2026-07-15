@@ -1,6 +1,6 @@
-// Evaluates lib/nodegit.js twice in one process, the way Jest does (fresh JS module
-// registry per test file, shared native binding), then exercises methods that earlier
-// versions would re-promisify. Exits non-zero if any DEP0174 warning is emitted.
+// Evaluates lib/nodegit.js twice in one process (fresh JS module registry, shared native
+// binding), then exercises methods that earlier versions would re-promisify. Exits
+// non-zero if any DEP0174 deprecation warning is emitted.
 var path = require("path");
 
 var libDir = path.resolve(__dirname, "..", "..", "lib");

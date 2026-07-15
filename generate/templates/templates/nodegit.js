@@ -10,12 +10,12 @@ try {
 var rawApi = require("node-gyp-build")(path.join(__dirname, ".."));
 
 // The native binding is a process-wide singleton, so when this file is evaluated more than
-// once in the same process (e.g. Jest evaluates it once per test file within a worker) the
-// methods on the shared classes are no longer the raw callback-style natives: they are the
-// promise-returning wrappers installed by an earlier evaluation (util.promisify below, or an
-// extension such as lookupWrapper). Re-promisifying those makes every call emit a DEP0174
-// deprecation warning and leak a pending promise per extra layer, so only ever wrap the raw
-// natives — anything else is already promise-based and is returned untouched.
+// once in the same process the methods on the shared classes are no longer the raw
+// callback-style natives: they are the promise-returning wrappers installed by an earlier
+// evaluation (util.promisify below, or an extension such as lookupWrapper). Re-promisifying
+// those makes every call emit a DEP0174 deprecation warning and leak a pending promise per
+// extra layer, so only ever wrap the raw natives — anything else is already promise-based
+// and is returned untouched.
 var promisify = fn => { // jshint ignore:line
   if (typeof fn !== "function" ||
       !Function.prototype.toString.call(fn).includes("[native code]")) {
