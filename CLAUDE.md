@@ -2,7 +2,7 @@
 
 ## Overview
 
-This is [@readme/nodegit](https://www.npmjs.com/package/@readme/nodegit), a fork of the original NodeGit library that provides Node.js bindings to libgit2. This fork is maintained by Readme and includes compatibility updates for Node.js 22, 24, and 26.
+This is [@readme/nodegit](https://www.npmjs.com/package/@readme/nodegit), a fork of the original NodeGit library that provides Node.js bindings to libgit2. This fork is maintained by ReadMe and includes compatibility updates for Node.js 22, 24, and 26.
 
 ## Quick Start
 
