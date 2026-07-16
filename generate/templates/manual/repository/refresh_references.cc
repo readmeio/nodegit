@@ -244,10 +244,10 @@ public:
   }
 
   ~RefreshedRefModel() {
-    if (fullName != NULL) { delete[] fullName; }
-    if (message != NULL) { delete[] message; }
+    if (fullName != NULL) { free(fullName); }
+    if (message != NULL) { free(message); }
     delete[] sha;
-    if (shorthand != NULL) { delete[] shorthand; }
+    if (shorthand != NULL) { free(shorthand); }
     if (tagOdbBuffer != NULL) { delete[] tagOdbBuffer; }
   }
 
@@ -344,8 +344,8 @@ public:
   }
 
   ~UpstreamModel() {
-    if (downstreamFullName != NULL) { delete[] downstreamFullName; }
-    if (upstreamFullName != NULL) { delete[] upstreamFullName; }
+    if (downstreamFullName != NULL) { free(downstreamFullName); }
+    if (upstreamFullName != NULL) { free(upstreamFullName); }
   }
 
   char *downstreamFullName;
@@ -375,7 +375,7 @@ public:
       delete upstreamInfo.back();
       upstreamInfo.pop_back();
     }
-    if (headRefFullName != NULL) { delete[] headRefFullName; }
+    if (headRefFullName != NULL) { free(headRefFullName); }
     if (cherrypick != NULL) { delete cherrypick; }
     if (merge != NULL) { delete merge; }
   }
@@ -416,12 +416,12 @@ NAN_METHOD(GitRepository::RefreshReferences)
   baton->error_code = GIT_OK;
   baton->error = NULL;
   baton->out = (void *)new RefreshReferencesData();
-  baton->repo = Nan::ObjectWrap::Unwrap<GitRepository>(info.This())->GetValue();
+  baton->repo = Nan::ObjectWrap::Unwrap<GitRepository>(info.Holder())->GetValue();
 
   Nan::Callback *callback = new Nan::Callback(Local<Function>::Cast(info[info.Length() - 1]));
   std::map<std::string, std::shared_ptr<nodegit::CleanupHandle>> cleanupHandles;
   RefreshReferencesWorker *worker = new RefreshReferencesWorker(baton, callback, cleanupHandles);
-  worker->Reference<GitRepository>("repo", info.This());
+  worker->Reference<GitRepository>("repo", info.Holder());
   worker->Reference("signatureType", signatureType);
   nodegit::Context *nodegitContext = reinterpret_cast<nodegit::Context *>(info.Data().As<External>()->Value());
   nodegitContext->QueueWorker(worker);
@@ -573,7 +573,7 @@ void GitRepository::RefreshReferencesWorker::Execute()
     if (isRemote) {
       char *remoteNameOfRef = getRemoteNameOfReference(reference);
       bool isFromExistingRemote = gitStrArrayContains(&remoteNames, remoteNameOfRef);
-      delete[] remoteNameOfRef;
+      free(remoteNameOfRef);
       if (!isFromExistingRemote) {
         git_reference_free(reference);
         continue;
