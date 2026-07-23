@@ -9,7 +9,20 @@ try {
 
 var rawApi = require("node-gyp-build")(path.join(__dirname, ".."));
 
-var promisify = fn => fn && util.promisify(fn); // jshint ignore:line
+// The native binding is a process-wide singleton, so when this file is evaluated more than
+// once in the same process the methods on the shared classes are no longer the raw
+// callback-style natives: they are the promise-returning wrappers installed by an earlier
+// evaluation (util.promisify below, or an extension such as lookupWrapper). Re-promisifying
+// those makes every call emit a DEP0174 deprecation warning and leak a pending promise per
+// extra layer, so only ever wrap the raw natives — anything else is already promise-based
+// and is returned untouched.
+var promisify = fn => { // jshint ignore:line
+  if (typeof fn !== "function" ||
+      !Function.prototype.toString.call(fn).includes("[native code]")) {
+    return fn;
+  }
+  return util.promisify(fn);
+};
 
 // For disccussion on why `cloneDeep` is required, see:
 // https://github.com/facebook/jest/issues/3552
