@@ -102,8 +102,7 @@ NAN_MODULE_INIT(init) {
   );
 
   Nan::HandleScope scope;
-  Local<Context> context = Nan::GetCurrentContext();
-  Isolate *isolate = context->GetIsolate();
+  Isolate *isolate = Isolate::GetCurrent();
   nodegit::Context *nodegitContext = new nodegit::Context(isolate);
 
   Wrapper::InitializeComponent(target, nodegitContext);

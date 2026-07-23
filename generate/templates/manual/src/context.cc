@@ -46,8 +46,7 @@ namespace nodegit {
 
   Context *Context::GetCurrentContext() {
     Nan::HandleScope scope;
-    v8::Local<v8::Context> context = Nan::GetCurrentContext();
-    v8::Isolate *isolate = context->GetIsolate();
+    v8::Isolate *isolate = v8::Isolate::GetCurrent();
     return contexts[isolate];
   }
 

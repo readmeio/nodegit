@@ -7,7 +7,7 @@
 ## What is this fork?
 
 This fork contains a prebuilt version of nodegit that is compatible with **node
-22.x** and the following platforms/arch/libc type:
+22.x, 24.x, and 26.x** and the following platforms/arch/libc type:
 
 - **darwin/arm64/glibc**
 - **darwin/amd64/glibc**
@@ -16,7 +16,7 @@ This fork contains a prebuilt version of nodegit that is compatible with **node
 - **linux/amd64/musl**
 - **linux/arm64/musl**
 
-This means that if you are using node 22 and one of those platforms, you can
+This means that if you are using node 22, 24, or 26 and one of those platforms, you can
 have a much faster install because you won't need to build nodegit from source.
 It also means that you will have a slightly larger file in your node_modules
 folder.
