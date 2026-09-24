@@ -30,6 +30,7 @@
     }
   ],
   "main": "lib/nodegit.js",
+  "types": "types/index.d.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/readmeio/nodegit.git"
@@ -43,6 +44,7 @@
   },
   "dependencies": {
     "@axosoft/nan": "npm:nan@^2.28.0",
+    "@types/node": "^22.20.4",
     "fs-extra": "^7.0.0",
     "json5": "^2.1.0",
     "lodash": "^4.17.14",
@@ -59,6 +61,7 @@
     "lcov-result-merger": "^3.1.0",
     "mocha": "^11.4.0",
     "nyc": "^17.1.0",
+    "typescript": "^5.9.3",
     "walk": "^2.3.9"
   },
   "scripts": {
@@ -79,7 +82,8 @@
     "rebuildDebug": "node generate && node-gyp configure --debug build",
     "recompile": "node-gyp configure build",
     "recompileDebug": "node-gyp configure --debug build",
-    "test": "npm run lint && node --expose-gc test",
+    "test": "npm run lint && npm run typecheck && node --expose-gc test",
+    "typecheck": "tsc --noEmit --strict --module node16 --moduleResolution node16 --target es2022 test/types/consumer.ts",
     "xcodeDebug": "node-gyp configure -- -f xcode"
   }
 }

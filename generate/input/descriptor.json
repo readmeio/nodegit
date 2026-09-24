@@ -3746,7 +3746,7 @@
           }
         },
         "git_repository_free": {
-          "ignore": true
+          "ignore": false
         },
         "git_repository_hashfile": {
           "ignore": true

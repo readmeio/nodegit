@@ -7,6 +7,7 @@
 #include <vector>
 #include "lock_master.h"
 #include "cleanup_handle.h"
+#include "tracker_wrap.h"
 
 namespace nodegit {
   class AsyncWorker : public Nan::AsyncWorker {
@@ -47,8 +48,10 @@ namespace nodegit {
       }
 
       auto objectWrapPointer = Nan::ObjectWrap::Unwrap<NodeGitWrapperT>(item.As<v8::Object>());
+      auto release = RetainNativeOwner(objectWrapPointer);
       objectWrapPointer->Reference();
-      RegisterCleanupCall([objectWrapPointer]() {
+      RegisterCleanupCall([objectWrapPointer, release]() {
+        if (release) release();
         objectWrapPointer->Unreference();
       });
     }
@@ -81,6 +84,8 @@ namespace nodegit {
     std::map<std::string, std::shared_ptr<nodegit::CleanupHandle>> cleanupHandles;
     Nan::Global<v8::Value> callbackErrorHandle;
 
+    static std::function<void()> RetainNativeOwner(nodegit::TrackerWrap *item) { return item->RetainNativeOwner(); }
+    static std::function<void()> RetainNativeOwner(Nan::ObjectWrap *) { return {}; }
   private:
     std::vector<std::function<void()>> cleanupCalls;
     bool isCancelled = false;

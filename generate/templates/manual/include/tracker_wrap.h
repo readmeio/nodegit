@@ -2,6 +2,7 @@
 #define TRACKERWRAP_H
 
 #include <nan.h>
+#include <functional>
 #include <memory>
 #include <vector>
 
@@ -15,6 +16,7 @@ namespace nodegit {
   public:
     TrackerWrap() = default;
     virtual ~TrackerWrap() = default;
+    virtual std::function<void()> RetainNativeOwner() { return {}; }
     TrackerWrap(const TrackerWrap &other) = delete;
     TrackerWrap(TrackerWrap &&other) = delete;
     TrackerWrap& operator=(const TrackerWrap &other) = delete;

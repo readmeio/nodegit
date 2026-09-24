@@ -1,5 +1,11 @@
 # Change Log
 
+## Unreleased
+
+- Ship maintained TypeScript declarations with `@readme/nodegit`, including
+  `Repository.free()` and corrections for repository, remote callback, progress,
+  and libgit2 option APIs.
+
 ## <a name="v0-28-0-alpha.35" href="#v0-28-0-alpha-35">v0.28.0-alpha.35</a> [(2025-06-03)](https://github.com/nodegit/nodegit/releases/tag/v0.28.0-alpha.35)
 
 [Full Changelog](https://github.com/nodegit/nodegit/compare/v0.28.0-alpha.34...v0.28.0-alpha.35)

@@ -45,6 +45,11 @@ public:
 protected:
   cType *raw;
   std::vector<std::shared_ptr<nodegit::CleanupHandle>> childCleanupVector;
+  std::vector<std::function<void()>> nativeOwnerReleases;
+  // Explicit free clears raw, but queued results can inherit a still-pinned native owner.
+  // Clear this pointer with the last pin so a disposed wrapper cannot resurrect freed memory.
+  cType *retainedRaw = NULL;
+  size_t nativeRetainCount = 0;
 
   // owner of the object, in the memory management sense. only populated
   // when using ownedByThis, and the type doesn't have a dupFunction
@@ -80,11 +85,13 @@ public:
 
   void Reference();
   void Unreference();
+  std::function<void()> RetainNativeOwner() override;
 
   void AddReferenceCallbacks(size_t, std::function<void()>, std::function<void()>);
 
   cType *GetValue();
   void ClearValue();
+  void ReleaseValue();
 
 private:
   std::unordered_map<size_t, std::function<void()>> referenceCallbacks;
