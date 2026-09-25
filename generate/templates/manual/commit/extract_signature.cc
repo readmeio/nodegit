@@ -3,6 +3,7 @@ NAN_METHOD(GitCommit::ExtractSignature)
   if (info.Length() == 0 || !info[0]->IsObject()) {
     return Nan::ThrowError("Repository repo is required.");
   }
+  if (Nan::ObjectWrap::Unwrap<GitRepository>(info[0].As<v8::Object>())->GetValue() == NULL) return Nan::ThrowError("Repository has been freed.");
 
   if (info.Length() == 1 || (!info[1]->IsObject() && !info[1]->IsString())) {
     return Nan::ThrowError("Oid commit_id is required.");

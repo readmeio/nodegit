@@ -4,10 +4,8 @@
 #include <nan.h>
 #include <node.h>
 #include <string>
-#include <cstring>
 
 #include "../include/wrapper.h"
-#include "node_buffer.h"
 
 using namespace v8;
 using namespace node;
@@ -67,14 +65,12 @@ NAN_METHOD(Wrapper::ToBuffer) {
   }
 
   int len = Nan::To<int>(info[0]).FromJust();
+  if (len < 0) {
+    return Nan::ThrowRangeError("Length must not be negative.");
+  }
 
-  Local<Function> bufferConstructor = Local<Function>::Cast(
-    Nan::Get(Nan::GetCurrentContext()->Global(), Nan::New("Buffer").ToLocalChecked()).ToLocalChecked());
-
-  Local<v8::Value> constructorArgs[1] = { Nan::New(len) };
-  Local<Object> nodeBuffer = Nan::NewInstance(bufferConstructor, 1, constructorArgs).ToLocalChecked();
-
-  std::memcpy(node::Buffer::Data(nodeBuffer), Nan::ObjectWrap::Unwrap<Wrapper>(info.This())->GetValue(), len);
+  const char *data = static_cast<const char *>(Nan::ObjectWrap::Unwrap<Wrapper>(info.Holder())->GetValue());
+  Local<Object> nodeBuffer = Nan::CopyBuffer(data, len).ToLocalChecked();
 
   info.GetReturnValue().Set(nodeBuffer);
 }

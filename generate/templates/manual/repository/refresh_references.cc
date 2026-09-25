@@ -389,6 +389,7 @@ public:
 
 NAN_METHOD(GitRepository::RefreshReferences)
 {
+  if (Nan::ObjectWrap::Unwrap<GitRepository>(info.Holder())->GetValue() == NULL) return Nan::ThrowError("Repository has been freed.");
   v8::Local<v8::String> signatureType;
   if (info.Length() == 2) {
     if (!info[0]->IsString()) {

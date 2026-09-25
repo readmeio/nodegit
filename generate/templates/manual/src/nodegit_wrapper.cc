@@ -22,6 +22,10 @@ NodeGitWrapper<Traits>::NodeGitWrapper(typename Traits::cType *raw, bool selfFre
       selfFreeing = true;
     } else {
       SetNativeOwners(owner);
+      for (nodegit::TrackerWrap *nativeOwner : *GetTrackerWrapOwners()) {
+        auto release = nativeOwner->RetainNativeOwner();
+        if (release) nativeOwnerReleases.push_back(std::move(release));
+      }
       this->owner.Reset(owner);
       this->raw = raw;
     }
@@ -48,14 +52,13 @@ NodeGitWrapper<Traits>::NodeGitWrapper(const char *error)
 template<typename Traits>
 NodeGitWrapper<Traits>::~NodeGitWrapper() {
   Unlink();
-  if (Traits::isFreeable && selfFreeing) {
-    Traits::free(raw);
-    SelfFreeingInstanceCount--;
-    raw = NULL;
+  if (selfFreeing) {
+    ReleaseValue();
   }
-  else if (!selfFreeing) {
+  else {
     --NonSelfFreeingConstructedCount;
   }
+  for (auto &release : nativeOwnerReleases) release();
 }
 
 template<typename Traits>
@@ -137,6 +140,15 @@ void NodeGitWrapper<Traits>::ClearValue() {
 }
 
 template<typename Traits>
+void NodeGitWrapper<Traits>::ReleaseValue() {
+  if (Traits::isFreeable && selfFreeing && raw != NULL) {
+    Traits::free(raw);
+    SelfFreeingInstanceCount--;
+    raw = NULL;
+  }
+}
+
+template<typename Traits>
 thread_local int NodeGitWrapper<Traits>::SelfFreeingInstanceCount;
 
 template<typename Traits>
@@ -172,6 +184,20 @@ void NodeGitWrapper<Traits>::Unreference() {
   for (auto &i : unreferenceCallbacks) {
     i.second();
   }
+}
+
+template<typename Traits>
+std::function<void()> NodeGitWrapper<Traits>::RetainNativeOwner() {
+  if (!Traits::isSingleton) return {};
+  cType *value = raw != NULL ? raw : retainedRaw;
+  if (value == NULL) return {};
+  ReferenceCounter::incrementCountForPointer((void *)value);
+  retainedRaw = value;
+  ++nativeRetainCount;
+  return [this, value]() {
+    if (--nativeRetainCount == 0) retainedRaw = NULL;
+    Traits::free(value);
+  };
 }
 
 template<typename Traits>

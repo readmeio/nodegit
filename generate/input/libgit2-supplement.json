@@ -1210,6 +1210,10 @@
           "isErrorCode": true
         }
       },
+      "git_repository_free": {
+        "isManual": true,
+        "cFile": "generate/templates/manual/repository/free.cc"
+      },
       "git_repository__cleanup": {
         "type": "function",
         "file": "sys/repository.h",

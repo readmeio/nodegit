@@ -35,8 +35,11 @@ NodeGit will work on most systems out-of-the-box without any native
 dependencies.
 
 ```bash
-npm install nodegit
+npm install @readme/nodegit
 ```
+
+TypeScript declarations ship with `@readme/nodegit`. Import from that package and
+remove `@types/nodegit` and any `tsconfig` path mapping to its declarations.
 
 In Ubuntu:
 
@@ -85,7 +88,7 @@ instructions.
 ### Cloning a repository and reading a file:
 
 ```javascript
-var Git = require("nodegit");
+var Git = require("@readme/nodegit");
 
 // Clone a given repository into the `./tmp` folder.
 Git.Clone("https://github.com/nodegit/nodegit", "./tmp")
@@ -125,7 +128,7 @@ Git.Clone("https://github.com/nodegit/nodegit", "./tmp")
 ### Emulating git log:
 
 ```javascript
-var Git = require("nodegit");
+var Git = require("@readme/nodegit");
 
 // Open the repository directory.
 Git.Repository.open("tmp")

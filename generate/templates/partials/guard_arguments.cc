@@ -1,5 +1,20 @@
 
 {%each args|argsInfo as arg%}
+  {%if arg.isSelf |and arg.cppClassName == "GitRepository"%}
+  if (Nan::ObjectWrap::Unwrap<GitRepository>(info.Holder())->GetValue() == NULL) {
+    return Nan::ThrowError("Repository has been freed.");
+  }
+  {%endif%}
+  {%if arg.isJsArg |and arg.cppClassName == "GitRepository"%}
+  if (info.Length() > {{arg.jsArg}} && info[{{arg.jsArg}}]->IsObject()) {
+    GitRepository *repository = Nan::ObjectWrap::Unwrap<GitRepository>(info[{{arg.jsArg}}].As<v8::Object>());
+    if (repository == NULL || repository->GetValue() == NULL) {
+      return Nan::ThrowError("Repository has been freed.");
+    }
+  }
+  {%endif%}
+{%endeach%}
+{%each args|argsInfo as arg%}
   {%if arg.isJsArg%}
     {%if not arg.isOptional%}
       {%if not arg.payloadFor %}

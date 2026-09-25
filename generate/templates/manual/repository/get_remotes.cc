@@ -1,5 +1,6 @@
 NAN_METHOD(GitRepository::GetRemotes)
 {
+  if (Nan::ObjectWrap::Unwrap<GitRepository>(info.Holder())->GetValue() == NULL) return Nan::ThrowError("Repository has been freed.");
   if (!info[info.Length() - 1]->IsFunction()) {
     return Nan::ThrowError("Callback is required and must be a Function.");
   }

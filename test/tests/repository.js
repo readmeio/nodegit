@@ -49,6 +49,84 @@ describe("Repository", function() {
     assert.ok(this.repository instanceof Repository);
   });
 
+  it("can explicitly free a repository", function() {
+    var initialCount = Repository.getSelfFreeingInstanceCount();
+
+    return Repository.open(reposPath)
+      .then(function(repository) {
+        assert.equal(Repository.getSelfFreeingInstanceCount(), initialCount + 1);
+        assert.equal(repository.free(), undefined);
+        assert.equal(Repository.getSelfFreeingInstanceCount(), initialCount);
+        assert.equal(repository.free(), undefined);
+        assert.equal(Repository.getSelfFreeingInstanceCount(), initialCount);
+
+        return Repository.open(reposPath);
+      })
+      .then(function(repository) {
+        assert.ok(repository.path());
+      });
+  });
+
+  it("keeps repository-owned handles usable after explicit free", function() {
+    var repository = this.repository;
+    return Promise.all([
+      NodeGit.Treebuilder.create(repository, null),
+      NodeGit.Refdb.open(repository)
+    ]).then(function(handles) {
+      repository.free();
+      assert.equal(handles[1].compress(), 0);
+      return handles[0].write();
+    }).then(function(oid) {
+      assert.ok(oid);
+    });
+  });
+
+  it("keeps children returned by already-queued work alive after free", function() {
+    var repository = this.repository;
+    var builder = NodeGit.Treebuilder.create(repository, null);
+    var refdb = NodeGit.Refdb.open(repository);
+    repository.free();
+
+    return Promise.all([builder, refdb]).then(function(handles) {
+      assert.equal(handles[1].compress(), 0);
+      return handles[0].write();
+    }).then(function(oid) {
+      assert.ok(oid);
+    });
+  });
+
+  it("preserves a commit's native owner but rejects its stale repo alias", function() {
+    var repository = this.repository;
+    return repository.getHeadCommit().then(function(commit) {
+      repository.free();
+      assert.ok(commit.owner().path());
+      return assert.rejects(commit.getTree(), /Repository has been freed/);
+    });
+  });
+
+  it("finishes queued repository work after explicit free", function() {
+    var repository = this.repository;
+    var references = repository.getReferences();
+    var statuses = repository.getStatus();
+    repository.free();
+    return Promise.all([references, statuses]).then(function(results) {
+      assert.ok(Array.isArray(results[0]));
+      assert.ok(Array.isArray(results[1]));
+    });
+  });
+
+  it("rejects operations on a freed repository without invoking libgit2", function() {
+    var repository = this.repository;
+    repository.free();
+    assert.throws(function() { repository.path(); }, /Repository has been freed/);
+    return Promise.all([
+      assert.rejects(repository.getReferences(), /Repository has been freed/),
+      assert.rejects(NodeGit.Tree.lookup(repository, "0000000000000000000000000000000000000000"),
+        /Repository has been freed/),
+      assert.rejects(repository.getHeadCommit(), /Repository has been freed/)
+    ]);
+  });
+
   it("cannot open an invalid repository", function() {
     return Repository.open("repos/nonrepo")
       .then(null, function(err) {
