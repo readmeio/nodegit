@@ -23,9 +23,16 @@ function cxxStandard(target, nodeRootDir, env) {
   if (nodeRootDir) {
     args.push(nodeRootDir);
   }
+  // Drop an inherited Electron or NW.js runtime so Node fixtures stay Node
+  // fixtures. Callers that need that runtime pass it in env.
+  const childEnv = Object.assign({}, process.env);
+  delete childEnv.npm_config_runtime;
+  if (env) {
+    Object.assign(childEnv, env);
+  }
   const result = spawnSync(process.execPath, args, {
     encoding: "utf8",
-    env: Object.assign({}, process.env, env || {}),
+    env: childEnv,
   });
   assert.strictEqual(result.status, 0, result.stderr);
   return result.stdout;
@@ -44,6 +51,28 @@ test("electron targets keep the electron C++ mapping", () => {
   assert.strictEqual(cxxStandard("24.0.0", headers), "17");
   assert.strictEqual(cxxStandard("31.7.7", headers), "17");
   assert.strictEqual(cxxStandard("32.2.0", headers), "20");
+});
+
+test("node prebuild targets ignore an inherited electron runtime", () => {
+  const headers = writeHeaders(false);
+  const previous = process.env.npm_config_runtime;
+  process.env.npm_config_runtime = "electron";
+  try {
+    assert.strictEqual(cxxStandard("23.0.0", headers), "20");
+    assert.strictEqual(cxxStandard("24.18.0", headers), "20");
+    assert.strictEqual(
+      cxxStandard("28.0.0", undefined, { npm_config_runtime: "electron" }),
+      "17"
+    );
+    process.env.npm_config_runtime = "node-webkit";
+    assert.strictEqual(cxxStandard("24.18.0", headers), "20");
+  } finally {
+    if (previous === undefined) {
+      delete process.env.npm_config_runtime;
+    } else {
+      process.env.npm_config_runtime = previous;
+    }
+  }
 });
 
 test("npm electron runtime is treated as electron even without headers", () => {
