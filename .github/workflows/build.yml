@@ -1,0 +1,112 @@
+name: Build
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+      - backport/*
+  workflow_call:
+
+jobs:
+  build:
+    name: build
+    strategy:
+      matrix:
+        node: [22, 24, 26]
+        os:
+          # https://github.com/actions/runner-images#available-images
+          - name: darwin
+            host: macos-26 #arm64
+
+          # macos-15-intel is the last intel image and will go out of service
+          # in fall 2027
+          - name: mac-x64
+            host: macos-15-intel
+
+          # ubuntu-22.04 is x86
+          - name: linux
+            host: ubuntu-22.04
+
+          - name: linux-arm
+            host: ubuntu-22.04-arm
+    env:
+      CC: clang
+      CXX: clang++
+      npm_config_clang: 1
+      GYP_DEFINES: use_obsolete_asm=true
+    runs-on: ${{ matrix.os.host }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          submodules: true
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ matrix.node }}
+          check-latest: true
+      - name: Prebuildify
+        run: |
+          if [[ $(uname -o) == *Linux ]]; then
+            sudo apt-get update
+            sudo apt-get install -y software-properties-common git build-essential clang libssl-dev libkrb5-dev libc++-dev wget python3 zlib1g-dev lsb-release gnupg
+            # Node 24+ headers use C++20 std::source_location, which needs
+            # clang >= 16; ubuntu 22.04 ships clang 14. Stay on 22.04 (rather
+            # than a newer runner) to keep the glibc 2.35 prebuild baseline.
+            wget https://apt.llvm.org/llvm.sh
+            chmod +x llvm.sh
+            sudo ./llvm.sh 18
+            export CC=clang-18
+            export CXX=clang++-18
+          fi
+
+          npm ci
+          JOBS=2 npx prebuildify --strip --napi=false --tag-libc -t "$(node --version | tr -d 'v')"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: prebuild-${{ runner.os }}-${{ runner.arch }}-node${{ matrix.node }}
+          path: ./prebuilds
+          retention-days: 14
+
+  # musl build still needs QEMU since there are no native Alpine/musl runners
+  cross-compile-musl-amd64:
+    name: "cross compile linux/amd64-musl"
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        node: [22, 24, 26]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: docker/setup-qemu-action@v3
+      - name: build linux musl amd64
+        run: |
+          docker build --platform=linux/amd64 --build-arg NODE_VERSION=${{ matrix.node }} --tag nodegit-linux-musl-amd64-node${{ matrix.node }} -f scripts/Dockerfile.alpine .
+          docker create --platform=linux/amd64 --name nodegit-linux-musl-amd64-node${{ matrix.node }} nodegit-linux-musl-amd64-node${{ matrix.node }}
+          docker cp "nodegit-linux-musl-amd64-node${{ matrix.node }}:/app/prebuilds" .
+      - name: "list the generated files"
+        run: find prebuilds
+      - uses: actions/upload-artifact@v4
+        with:
+          name: prebuild-linux-musl-amd64-node${{ matrix.node }}
+          path: ./prebuilds
+          retention-days: 14
+
+  cross-compile-musl-arm64:
+    name: "build linux/arm64-musl"
+    runs-on: ubuntu-22.04-arm
+    strategy:
+      matrix:
+        node: [22, 24, 26]
+    steps:
+      - uses: actions/checkout@v5
+      - name: build linux musl arm64
+        run: |
+          docker build --platform=linux/arm64 --build-arg NODE_VERSION=${{ matrix.node }} --tag nodegit-linux-musl-arm64-node${{ matrix.node }} -f scripts/Dockerfile.alpine .
+          docker create --platform=linux/arm64 --name nodegit-linux-musl-arm64-node${{ matrix.node }} nodegit-linux-musl-arm64-node${{ matrix.node }}
+          docker cp "nodegit-linux-musl-arm64-node${{ matrix.node }}:/app/prebuilds" .
+      - name: "list the generated files"
+        run: find prebuilds
+      - uses: actions/upload-artifact@v4
+        with:
+          name: prebuild-linux-musl-arm64-node${{ matrix.node }}
+          path: ./prebuilds
+          retention-days: 14
