@@ -7,7 +7,7 @@
     "is_IBMi%": "<!(node -p \"os.platform() == 'aix' && os.type() == 'OS400' ? 1 : 0\")",
     "electron_openssl_root%": "<!(node ./utils/getElectronOpenSSLRoot.js <(module_root_dir))",
     "electron_openssl_static%": "<!(node -p \"process.platform !== 'linux' || process.env.NODEGIT_OPENSSL_STATIC_LINK === '1' ? 1 : 0\")",
-    "cxx_version%": "<!(node ./utils/defaultCxxStandard.js <(target))",
+    "cxx_version%": "<!(node ./utils/defaultCxxStandard.js \"<(target)\" \"<(node_root_dir)\")",
     "has_cxxflags%": "<!(node -p \"process.env.CXXFLAGS ? 1 : 0\")",
     "macOS_deployment_target": "10.11",
     # https://github.com/nodejs/node-gyp/issues/2673
