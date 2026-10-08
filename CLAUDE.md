@@ -101,9 +101,9 @@ Tests are located in:
 ## CI/CD
 
 GitHub Actions workflows:
-- **build.yml** (Build): Builds native prebuilds for Node 22, 24, and 26 on every pull request and on pushes to `master` and `backport/*`
+- **build.yml** (Build): Compiles native prebuilds for Node 22, 24, and 26 on every pull request and on pushes to `master` and `backport/*`. Those runs do not upload artifacts.
 - **tests.yml** (Tests): Runs tests on Ubuntu 22.04 and macOS-26 across Node 22, 24, and 26
-- **publish.yml** (Publish): Publishes the package for `v*` tags, using the prebuilds from the Build workflow
+- **publish.yml** (Publish): Calls the Build workflow with artifact upload enabled, then publishes the package for `v*` tags
 
 ## Architecture
 

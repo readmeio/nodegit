@@ -7,6 +7,11 @@ on:
       - master
       - backport/*
   workflow_call:
+    inputs:
+      upload-artifacts:
+        description: Upload prebuilds for a release. Pull request runs only compile.
+        type: boolean
+        default: false
 
 jobs:
   build:
@@ -62,6 +67,7 @@ jobs:
           npm ci
           JOBS=2 npx prebuildify --strip --napi=false --tag-libc -t "$(node --version | tr -d 'v')"
       - uses: actions/upload-artifact@v4
+        if: ${{ inputs.upload-artifacts }}
         with:
           name: prebuild-${{ runner.os }}-${{ runner.arch }}-node${{ matrix.node }}
           path: ./prebuilds
@@ -85,6 +91,7 @@ jobs:
       - name: "list the generated files"
         run: find prebuilds
       - uses: actions/upload-artifact@v4
+        if: ${{ inputs.upload-artifacts }}
         with:
           name: prebuild-linux-musl-amd64-node${{ matrix.node }}
           path: ./prebuilds
@@ -106,6 +113,7 @@ jobs:
       - name: "list the generated files"
         run: find prebuilds
       - uses: actions/upload-artifact@v4
+        if: ${{ inputs.upload-artifacts }}
         with:
           name: prebuild-linux-musl-arm64-node${{ matrix.node }}
           path: ./prebuilds
