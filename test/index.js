@@ -1,4 +1,5 @@
 var fork = require("child_process").fork;
+var spawnSync = require("child_process").spawnSync;
 var path = require("path");
 var fs = require('fs');
 
@@ -28,6 +29,19 @@ if (!process.env.APPVEYOR && !process.env.TRAVIS && !process.env.GITHUB_ACTION) 
   var dummyPath = local("home");
   process.env.HOME = dummyPath;
   process.env.USERPROFILE = dummyPath;
+}
+
+// Compiler-standard checks run before Mocha so CI covers them without loading the native addon.
+var cxxStandardTests = spawnSync(process.execPath, [
+  "--test",
+  path.join(__dirname, "../utils/defaultCxxStandard.test.js")
+], {
+  cwd: path.join(__dirname, "../"),
+  stdio: "inherit"
+});
+
+if (cxxStandardTests.status !== 0) {
+  process.exit(cxxStandardTests.status || 1);
 }
 
 // unencrypt test keys
